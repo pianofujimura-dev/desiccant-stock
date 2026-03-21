@@ -1,4 +1,33 @@
-<!DOCTYPE html>
+function doPost(e) {
+  try {
+    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      return ContentService
+        .createTextOutput(JSON.stringify({ error: "シートが見つかりません: " + SHEET_NAME }))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const raw = e && e.postData && e.postData.contents ? e.postData.contents : "[]";
+    const data = JSON.parse(raw);
+
+    sheet.clearContents();
+
+    const headers = ["tuner", "date", "addr", "name", "qty", "pairId"];
+    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+
+    if (data.length > 0) {
+      const rows = data.map(r => [
+        r.tuner || "",
+        r.date || "",
+        r.addr || "",
+        r.name || "",
+        Number(r.qty || 0),
+        r.pairId || ""
+      ]);
+
+      sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
+    }<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -292,22 +321,48 @@ hr{
 
 <script>
 const tuners = ["木津倉庫", "青山", "辻本", "中村", "丸山", "土屋", "坂本", "多田", "巽"];
-const API_URL = "https://script.google.com/macros/s/AKfycbxxbO98EkhYiQMH95exDQENVKNhpptDl-GrUBBGi__B7ePFE3lc9wI4jN8eXZXxpD0l/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzFG8UiFzKnqt3u-kOsXylntTxhBGqHiGlx_4m_CXtDJd5UKx9J4OT0Y9MRBQIWvcBJ/exec";
 
 let records = [];
 let current = "";
 
 async function loadRecords(){
   try{
-    const res = await fetch(API_URL);
-    records = await res.json();
+    const res = await fetch(API_URL + "?t=" + Date.now());
+
+    if(!res.ok){
+      throw new Error("読込失敗: " + res.status);
+    }
+
+    const data = await res.json();
+    console.log("load data:", data);
+
+    if(!Array.isArray(data)){
+      throw new Error("APIが配列を返していません: " + JSON.stringify(data));
+    }
+
+    records = data.map(r => ({
+      tuner: r.tuner || "",
+      date: r.date || "",
+      addr: r.addr || "",
+      name: r.name || "",
+      qty: Number(r.qty || 0),
+      pairId: r.pairId || ""
+    }));
+
     updateTotal();
+
     if(current){
       update();
     }
   }catch(error){
-    alert("データの読み込みに失敗しました");
-    console.error(error);
+    console.error("load error:", error);
+    alert("データの読み込みに失敗しました\n" + error.message);
+    records = [];
+    updateTotal();
+    if(current){
+      update();
+    }
   }
 }
 
@@ -543,20 +598,31 @@ function update(){
 
   let stock = 0;
 
-  records.forEach((r, i) => {
-    if(r.tuner === current){
-      stock -= r.qty;
+  if(!Array.isArray(records)){
+    id("stock").innerText = 0;
+    return;
+  }
 
-      let tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td>${r.date}</td>
-        <td>${r.addr}</td>
-        <td>${r.name}</td>
-        <td>${r.qty}</td>
-        <td><button class="delete" onclick="del(${i})">削除</button></td>
-      `;
-      tbody.appendChild(tr);
-    }
+  const currentRecords = records
+    .map((r, i) => ({ ...r, originalIndex: i }))
+    .filter(r => r.tuner === current);
+
+  currentRecords.forEach(r => {
+    stock -= Number(r.qty || 0);
+  });
+
+  const displayRecords = [...currentRecords].reverse();
+
+  displayRecords.forEach(r => {
+    let tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.date || ""}</td>
+      <td>${r.addr || ""}</td>
+      <td>${r.name || ""}</td>
+      <td>${Number(r.qty || 0)}</td>
+      <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
+    `;
+    tbody.appendChild(tr);
   });
 
   id("stock").innerText = stock;
@@ -565,9 +631,14 @@ function update(){
 function updateTotal(){
   let total = 0;
 
+  if(!Array.isArray(records)){
+    id("totalStock").innerText = 0;
+    return;
+  }
+
   records.forEach(r => {
     if(r.tuner === "木津倉庫"){
-      total -= r.qty;
+      total -= Number(r.qty || 0);
     }
   });
 
@@ -616,6 +687,7 @@ async function save(){
     alert("データの保存に失敗しました\n" + error);
   }
 }
+
 function search(){
   let s = id("search").value.toLowerCase();
 
@@ -631,3 +703,19 @@ function id(x){
 
 </body>
 </html>
+
+    sheet.autoResizeColumns(1, headers.length);
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "ok", count: data.length }))
+      .setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: "error",
+        message: String(err)
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
