@@ -1,33 +1,4 @@
-function doPost(e) {
-  try {
-    const sheet = SpreadsheetApp.openById(SPREADSHEET_ID).getSheetByName(SHEET_NAME);
-
-    if (!sheet) {
-      return ContentService
-        .createTextOutput(JSON.stringify({ error: "シートが見つかりません: " + SHEET_NAME }))
-        .setMimeType(ContentService.MimeType.JSON);
-    }
-
-    const raw = e && e.postData && e.postData.contents ? e.postData.contents : "[]";
-    const data = JSON.parse(raw);
-
-    sheet.clearContents();
-
-    const headers = ["tuner", "date", "addr", "name", "qty", "pairId"];
-    sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
-
-    if (data.length > 0) {
-      const rows = data.map(r => [
-        r.tuner || "",
-        r.date || "",
-        r.addr || "",
-        r.name || "",
-        Number(r.qty || 0),
-        r.pairId || ""
-      ]);
-
-      sheet.getRange(2, 1, rows.length, headers.length).setValues(rows);
-    }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -703,5 +674,3 @@ function id(x){
 
 </body>
 </html>
-
-   
