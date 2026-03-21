@@ -704,18 +704,4 @@ function id(x){
 </body>
 </html>
 
-    sheet.autoResizeColumns(1, headers.length);
-
-    return ContentService
-      .createTextOutput(JSON.stringify({ status: "ok", count: data.length }))
-      .setMimeType(ContentService.MimeType.JSON);
-
-  } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({
-        status: "error",
-        message: String(err)
-      }))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
+   
