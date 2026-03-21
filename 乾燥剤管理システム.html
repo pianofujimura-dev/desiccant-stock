@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>乾燥剤管理V5</title>
+<style>
+body{
+  font-family:sans-serif;
+  background:#eef3ff;
+  margin:20px;
+  line-height:1.6;
+}
+h1{
+  font-size:30px;
+}
+.box{
+  background:white;
+  padding:18px;
+  margin-bottom:18px;
+  border-radius:12px;
+  box-shadow:0 0 6px rgba(0,0,0,0.15);
+}
+
+#sellBox{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+#sellBox input,
+#sellBox button,
+#sellBox .label{
+  margin:0;
+}
+button{
+  font-size:18px;
+  padding:10px 16px;
+  margin:5px;
+  border:none;
+  border-radius:10px;
+  background:#4caf50;
+  color:white;
+  cursor:pointer;
+}
+button:hover{
+  background:#388e3c;
+}
+.warehouseBtn{
+  background:#e53935;
+}
+#warehouseBox{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
+.warehouseBtn:hover{
+  background:#c62828;
+}
+input,select{
+  font-size:18px;
+  padding:10px;
+  margin:5px;
+  border:1px solid #bbb;
+  border-radius:8px;
+}
+.stock{
+  font-size:24px;
+  color:green;
+  font-weight:bold;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+}
+th,td{
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:center;
+  font-size:16px;
+}
+th{
+  background:#dfe8ff;
+}
+.delete{
+  background:red;
+}
+.delete:hover{
+  background:#c40000;
+}
+hr{
+  margin:16px 0;
+}
+.label{
+  font-weight:bold;
+}
+
+.inlineRow{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+
+#tunerButtons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.inlineRow{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.guideTitle{
+  font-size:20px;
+  font-weight:bold;
+  background:#e8f2ff;
+  border-left:6px solid #4caf50;
+  padding:10px 14px;
+  margin:10px 0 14px 0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.sectionBody{
+  display:none;
+  margin:0;
+  padding:0;
+  overflow:hidden;
+}
+</style>
+</head>
+<body>
+
+<h1>乾燥剤管理システム</h1>
+
+<div id="home">
+
+  <div class="box" id="warehouseBox">
+    木津倉庫 残数
+    <span class="stock" id="totalStock">0</span>
+    <span id="warehouseButton"></span>
+  </div>
+
+  <div class="box">
+    <div id="tunerButtons"></div>
+  </div>
+
+</div>
+
+<div id="page" style="display:none">
+
+  <div class="box">
+    <button onclick="goHome()">戻る</button>
+    <h2 id="title"></h2>
+    残数
+    <span class="stock" id="stock"></span>
+  </div>
+
+  <div class="box">
+
+    <div id="normalIn" style="display:none;">
+      <div class="guideTitle" onclick="toggleSection('inSection')">
+        倉庫に入庫したとき
+      </div>
+
+      <div id="inSection" class="sectionBody">
+        <div class="inlineRow">
+          <span class="label">入庫日:</span>
+          <input type="date" id="stockInDate">
+
+          <span class="label">個数:</span>
+          <input type="number" id="inQtyPage" min="1" style="width:80px;">
+
+          <span class="label">箱:</span>
+          <select id="boxCount">
+            <option value="">--箱数--</option>
+            <option value="1">1箱</option>
+            <option value="2">2箱</option>
+            <option value="3">3箱</option>
+            <option value="4">4箱</option>
+            <option value="5">5箱</option>
+            <option value="6">6箱</option>
+            <option value="7">7箱</option>
+            <option value="8">8箱</option>
+            <option value="9">9箱</option>
+            <option value="10">10箱</option>
+          </select>
+
+          <button onclick="stockInWarehouse()">入庫する</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="moveBox" style="display:none;">
+      <hr>
+      <div class="guideTitle" onclick="toggleSection('moveSection')">
+        調律師に渡すとき
+      </div>
+
+      <div id="moveSection" class="sectionBody">
+        <span class="label">調律師:</span>
+        <select id="moveName"></select>
+
+        <span class="label">箱数:</span>
+        <select id="moveBoxCount">
+          <option value="1">1箱</option>
+          <option value="2">2箱</option>
+          <option value="3">3箱</option>
+          <option value="4">4箱</option>
+          <option value="5">5箱</option>
+          <option value="6">6箱</option>
+          <option value="7">7箱</option>
+          <option value="8">8箱</option>
+          <option value="9">9箱</option>
+          <option value="10">10箱</option>
+        </select>
+
+        <button onclick="moveOne()">渡す</button>
+      </div>
+    </div>
+
+    <div id="serviceBox" style="display:none;">
+      <hr>
+
+      <div class="guideTitle" onclick="toggleSection('serviceSection')">
+        リメイクサービス時
+      </div>
+
+      <div id="serviceSection" class="sectionBody">
+        リメイクサービス使用：
+
+        日付:
+        <input type="date" id="serviceDate">
+
+        住所:
+        <input id="serviceAddr">
+
+        名前
+        <input id="serviceName">
+
+        個数:
+        <input type="number" id="serviceQty" value="2" min="1">
+
+        <button onclick="addService()">リメイク</button>
+      </div>
+    </div>
+
+    <div id="sellBox">
+      <span class="label">日付:</span>
+      <input type="date" id="date">
+
+      <span class="label">住所:</span>
+      <input id="addr">
+
+      <span class="label">名前:</span>
+      <input id="name">
+
+      <span class="label">個数:</span>
+      <input type="number" id="qty" min="1">
+
+      <button onclick="add()">販売</button>
+    </div>
+
+  </div>
+
+  <div class="box">
+    <span class="label">検索:</span>
+    <input id="search" onkeyup="search()" placeholder="日付・住所・名前で検索">
+  </div>
+
+  <div class="box">
+    <table id="table">
+      <thead>
+        <tr>
+          <th>日付</th>
+          <th>住所</th>
+          <th>名前</th>
+          <th>個数</th>
+          <th>削除</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+const tuners = ["木津倉庫", "青山", "辻本", "中村", "丸山", "土屋", "坂本", "多田", "巽"];
+const API_URL = "https://script.google.com/macros/s/AKfycbxVyBKDvNoP2cnpIlG0euF9EPS_Y3Cog0GxdBNfvRn44FKkOHrfSkPtpLqIBfaoFT1v/exec";
+
+let records = [];
+let current = "";
+
+async function loadRecords(){
+  try{
+    const res = await fetch(API_URL);
+    records = await res.json();
+    updateTotal();
+    if(current){
+      update();
+    }
+  }catch(error){
+    alert("データの読み込みに失敗しました");
+    console.error(error);
+  }
+}
+
+buildTunerButtons();
+buildMoveOptions();
+loadRecords();
+
+function buildTunerButtons(){
+  let html = "";
+  let warehouseBtn = "";
+
+  tuners.forEach(name => {
+    if(name === "木津倉庫"){
+      warehouseBtn = `
+        <button class="warehouseBtn" onclick="openPage('${name}')">
+          ${name}
+        </button>`;
+    }else{
+      html += `
+        <button onclick="openPage('${name}')">
+          ${name}
+        </button>`;
+    }
+  });
+
+  id("tunerButtons").innerHTML = html;
+  id("warehouseButton").innerHTML = warehouseBtn;
+}
+
+function buildMoveOptions(){
+  let options = `<option value="">--選択--</option>`;
+
+  tuners
+    .filter(name => name !== "木津倉庫")
+    .forEach(name => {
+      options += `<option value="${name}">${name}</option>`;
+    });
+
+  id("moveName").innerHTML = options;
+}
+
+async function stockInWarehouse(){
+  let stockDate = id("stockInDate").value;
+  let pieceQty = Number(id("inQtyPage").value || 0);
+  let box = Number(id("boxCount").value || 0);
+
+  if(!stockDate){
+    alert("入庫日を入力してください");
+    return;
+  }
+
+  if(pieceQty <= 0 && box <= 0){
+    alert("個数または箱数を入力してください");
+    return;
+  }
+
+  let totalQty = 0;
+  let label = [];
+
+  if(box > 0){
+    totalQty += box * 30;
+    label.push(box + "箱");
+  }
+
+  if(pieceQty > 0){
+    totalQty += pieceQty;
+    label.push(pieceQty + "個");
+  }
+
+  records.push({
+    tuner: current,
+    date: stockDate + " 入庫(" + label.join("+") + ")",
+    addr: "",
+    name: "",
+    qty: -totalQty
+  });
+
+  await save();
+  clearInputs();
+  update();
+}
+
+async function moveOne(){
+  let to = id("moveName").value;
+
+  if(!to){
+    alert("渡す相手を選んでください");
+    return;
+  }
+
+  let box = Number(id("moveBoxCount").value);
+  let qty = box * 30;
+  let pairId = "move_" + Date.now();
+
+  records.push({
+    tuner: "木津倉庫",
+    date: "持出(" + box + "箱)",
+    addr: "",
+    name: to,
+    qty: qty,
+    pairId: pairId
+  });
+
+  records.push({
+    tuner: to,
+    date: "倉庫(" + box + "箱)",
+    addr: "",
+    name: "",
+    qty: -qty,
+    pairId: pairId
+  });
+
+  await save();
+  clearInputs();
+  update();
+}
+
+async function addService(){
+  let date = id("serviceDate").value;
+  let addr = id("serviceAddr").value;
+  let name = id("serviceName").value;
+  let qty = Number(id("serviceQty").value);
+
+  if(!date || !addr || !name || !qty){
+    alert("日付・住所・名前・個数を入力してください");
+    return;
+  }
+
+  records.push({
+    tuner: "木津倉庫",
+    date: date,
+    addr: addr,
+    name: "リメイク：" + name,
+    qty: qty
+  });
+
+  await save();
+  clearInputs();
+  update();
+}
+
+function toggleSection(sectionId){
+  let el = document.getElementById(sectionId);
+  if(el.style.display === "block"){
+    el.style.display = "none";
+  }else{
+    el.style.display = "block";
+  }
+}
+
+function openPage(name){
+  current = name;
+
+  id("home").style.display = "none";
+  id("page").style.display = "block";
+  id("title").innerText = name;
+
+  clearInputs();
+
+  if(name === "木津倉庫"){
+    id("moveBox").style.display = "block";
+    id("normalIn").style.display = "block";
+    id("sellBox").style.display = "none";
+    id("serviceBox").style.display = "block";
+  }else{
+    id("moveBox").style.display = "none";
+    id("normalIn").style.display = "none";
+    id("sellBox").style.display = "block";
+    id("serviceBox").style.display = "none";
+  }
+
+  update();
+}
+
+function clearInputs(){
+  id("date").value = "";
+  id("addr").value = "";
+  id("name").value = "";
+  id("qty").value = "";
+  id("inQtyPage").value = "";
+  id("search").value = "";
+  id("stockInDate").value = "";
+  id("boxCount").value = "";
+  id("moveBoxCount").value = "1";
+
+  id("serviceDate").value = "";
+  id("serviceAddr").value = "";
+  id("serviceName").value = "";
+  id("serviceQty").value = "2";
+
+  if(id("moveName").options.length > 0){
+    id("moveName").value = "";
+  }
+
+  id("inSection").style.display = "none";
+  id("moveSection").style.display = "none";
+  id("serviceSection").style.display = "none";
+}
+
+function goHome(){
+  id("home").style.display = "block";
+  id("page").style.display = "none";
+  updateTotal();
+}
+
+async function add(){
+  let date = id("date").value;
+  let addr = id("addr").value;
+  let name = id("name").value;
+  let qty = Number(id("qty").value);
+
+  if(!date || !addr || !name || !qty){
+    alert("日付・住所・名前・個数を入力してください");
+    return;
+  }
+
+  records.push({
+    tuner: current,
+    date: date,
+    addr: addr,
+    name: name,
+    qty: qty
+  });
+
+  await save();
+  clearInputs();
+  update();
+}
+
+function update(){
+  let tbody = document.querySelector("#table tbody");
+  tbody.innerHTML = "";
+
+  let stock = 0;
+
+  records.forEach((r, i) => {
+    if(r.tuner === current){
+      stock -= r.qty;
+
+      let tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${r.date}</td>
+        <td>${r.addr}</td>
+        <td>${r.name}</td>
+        <td>${r.qty}</td>
+        <td><button class="delete" onclick="del(${i})">削除</button></td>
+      `;
+      tbody.appendChild(tr);
+    }
+  });
+
+  id("stock").innerText = stock;
+}
+
+function updateTotal(){
+  let total = 0;
+
+  records.forEach(r => {
+    if(r.tuner === "木津倉庫"){
+      total -= r.qty;
+    }
+  });
+
+  id("totalStock").innerText = total;
+}
+
+async function del(i){
+  let target = records[i];
+
+  if(target.pairId){
+    records = records.filter(r => r.pairId !== target.pairId);
+  }else{
+    records.splice(i, 1);
+  }
+
+  await save();
+  update();
+  updateTotal();
+}
+
+async function save(){
+  try{
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(records)
+    });
+
+    if(!res.ok){
+      throw new Error("保存失敗: " + res.status);
+    }
+
+    const result = await res.json();
+    console.log("save result", result);
+
+    localStorage.setItem("records", JSON.stringify(records));
+    updateTotal();
+  }catch(error){
+    console.error(error);
+    alert("データの保存に失敗しました");
+  }
+}
+function search(){
+  let s = id("search").value.toLowerCase();
+
+  document.querySelectorAll("#table tbody tr").forEach(tr => {
+    tr.style.display = tr.innerText.toLowerCase().includes(s) ? "" : "none";
+  });
+}
+
+function id(x){
+  return document.getElementById(x);
+}
+</script>
+
+</body>
+</html>
