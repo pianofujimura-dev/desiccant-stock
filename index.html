@@ -165,9 +165,9 @@ hr{
 
   <div class="box">
     <div id="tunerButtons"></div>
-    <div class="box">
-  <div id="tunerStockList"></div>
-</div>
+   <div class="box">
+    <div id="tunerStockList"></div>
+   </div>
   </div>
 
 </div>
@@ -688,6 +688,54 @@ function search(){
   document.querySelectorAll("#table tbody tr").forEach(tr => {
     tr.style.display = tr.innerText.toLowerCase().includes(s) ? "" : "none";
   });
+}
+
+async function del(i){
+
+  if(!confirm("削除しますか？")){
+    return;
+  }
+
+  let target = records[i];
+
+  if(target.pairId){
+    records = records.filter(r => r.pairId !== target.pairId);
+  }else{
+    records.splice(i, 1);
+  }
+
+  await save();
+  update();
+  updateTotal();
+}
+
+async function save(){
+  try{
+    console.log("送信前 records:", records);
+
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(records)
+    });
+
+    const text = await res.text();
+    console.log("POST response status:", res.status);
+    console.log("POST response text:", text);
+
+    if(!res.ok){
+      throw new Error("保存失敗: " + res.status + " / " + text);
+    }
+
+    localStorage.setItem("records", JSON.stringify(records));
+    updateTotal();
+    alert("保存しました");
+  }catch(error){
+    console.error("save error:", error);
+    alert("データの保存に失敗しました\n" + error);
+  }
 }
 
 function id(x){
