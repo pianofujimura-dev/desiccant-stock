@@ -590,6 +590,8 @@ async function del(i){
 
 async function save(){
   try{
+    console.log("送信前 records:", records);
+
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -598,18 +600,20 @@ async function save(){
       body: JSON.stringify(records)
     });
 
-    if(!res.ok){
-      throw new Error("保存失敗: " + res.status);
-    }
+    const text = await res.text();
+    console.log("POST response status:", res.status);
+    console.log("POST response text:", text);
 
-    const result = await res.json();
-    console.log("save result", result);
+    if(!res.ok){
+      throw new Error("保存失敗: " + res.status + " / " + text);
+    }
 
     localStorage.setItem("records", JSON.stringify(records));
     updateTotal();
+    alert("保存しました");
   }catch(error){
-    console.error(error);
-    alert("データの保存に失敗しました");
+    console.error("save error:", error);
+    alert("データの保存に失敗しました\n" + error);
   }
 }
 function search(){
