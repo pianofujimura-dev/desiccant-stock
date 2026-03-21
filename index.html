@@ -292,7 +292,7 @@ hr{
 
 <script>
 const tuners = ["木津倉庫", "青山", "辻本", "中村", "丸山", "土屋", "坂本", "多田", "巽"];
-const API_URL = "https://script.google.com/macros/s/AKfycbxfeTcgbtiu_lgPdYzhRzV3tR_4SDMsJuty1q01_zY5DXPoJ8E-onYsX6nuhlVswaiA/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxVyBKDvNoP2cnpIlG0euF9EPS_Y3Cog0GxdBNfvRn44FKkOHrfSkPtpLqIBfaoFT1v/exec";
 
 let records = [];
 let current = "";
@@ -588,11 +588,30 @@ async function del(i){
   updateTotal();
 }
 
-function save(){
-  localStorage.setItem("records", JSON.stringify(records));
-  updateTotal();
-}
+async function save(){
+  try{
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(records)
+    });
 
+    if(!res.ok){
+      throw new Error("保存失敗: " + res.status);
+    }
+
+    const result = await res.json();
+    console.log("save result", result);
+
+    localStorage.setItem("records", JSON.stringify(records));
+    updateTotal();
+  }catch(error){
+    console.error(error);
+    alert("データの保存に失敗しました");
+  }
+}
 function search(){
   let s = id("search").value.toLowerCase();
 
