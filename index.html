@@ -49,6 +49,23 @@ button:hover{
 .warehouseBtn{
   background:#e53935;
 }
+button{
+  font-size:20px;
+  padding:12px 18px;
+  margin:6px;
+}
+@media (max-width:600px){
+
+button{
+  width:100%;
+  font-size:22px;
+}
+
+input,select{
+  width:100%;
+}
+
+}
 #warehouseBox{
   display:flex;
   align-items:center;
@@ -148,6 +165,9 @@ hr{
 
   <div class="box">
     <div id="tunerButtons"></div>
+    <div class="box">
+  <div id="tunerStockList"></div>
+</div>
   </div>
 
 </div>
@@ -292,7 +312,7 @@ hr{
 
 <script>
 const tuners = ["木津倉庫", "青山", "辻本", "中村", "丸山", "土屋", "坂本", "多田", "巽"];
-const API_URL = "https://script.google.com/macros/s/AKfycbzFG8UiFzKnqt3u-kOsXylntTxhBGqHiGlx_4m_CXtDJd5UKx9J4OT0Y9MRBQIWvcBJ/exec";
+const API_URL = https://script.google.com/macros/s/AKfycbzFG8UiFzKnqt3u-kOsXylntTxhBGqHiGlx_4m_CXtDJd5UKx9J4OT0Y9MRBQIWvcBJ/exec";
 
 let records = [];
 let current = "";
@@ -582,10 +602,24 @@ function update(){
     stock -= Number(r.qty || 0);
   });
 
-  const displayRecords = [...currentRecords].reverse();
+  // 日付順ソート（新しい順）
+  const displayRecords = [...currentRecords].sort((a,b)=>{
+    return (b.date || "").localeCompare(a.date || "");
+  });
 
   displayRecords.forEach(r => {
+
+    let color = "";
+
+    if(r.date.includes("入庫")) color = "#e3f2fd";
+    else if(r.name.includes("リメイク")) color = "#fff3cd";
+    else if(r.date.includes("持出")) color = "#ffe0b2";
+    else if(r.qty > 0) color = "#ffcdd2";
+    else color = "#e8f5e9";
+
     let tr = document.createElement("tr");
+    tr.style.background = color;
+
     tr.innerHTML = `
       <td>${r.date || ""}</td>
       <td>${r.addr || ""}</td>
@@ -593,12 +627,43 @@ function update(){
       <td>${Number(r.qty || 0)}</td>
       <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
     `;
+
     tbody.appendChild(tr);
+
   });
 
   id("stock").innerText = stock;
 }
+function updateTunerStock(){
 
+  let html = "";
+
+  tuners.forEach(name=>{
+
+    let total = 0;
+
+    records.forEach(r=>{
+      if(r.tuner === name){
+        total -= Number(r.qty || 0);
+      }
+    });
+
+    html += `
+      <div style="
+        display:inline-block;
+        margin:5px;
+        padding:8px 12px;
+        border-radius:8px;
+        background:#dfe8ff;
+        font-weight:bold;
+      ">
+        ${name} : ${total}
+      </div>
+    `;
+  });
+
+  id("tunerStockList").innerHTML = html;
+}
 function updateTotal(){
   let total = 0;
 
@@ -614,51 +679,9 @@ function updateTotal(){
   });
 
   id("totalStock").innerText = total;
+
+  updateTunerStock();
 }
-
-async function del(i){
-  let target = records[i];
-
-  if(target.pairId){
-    records = records.filter(r => r.pairId !== target.pairId);
-  }else{
-    records.splice(i, 1);
-  }
-
-  await save();
-  update();
-  updateTotal();
-}
-
-async function save(){
-  try{
-    console.log("送信前 records:", records);
-
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "text/plain;charset=utf-8"
-      },
-      body: JSON.stringify(records)
-    });
-
-    const text = await res.text();
-    console.log("POST response status:", res.status);
-    console.log("POST response text:", text);
-
-    if(!res.ok){
-      throw new Error("保存失敗: " + res.status + " / " + text);
-    }
-
-    localStorage.setItem("records", JSON.stringify(records));
-    updateTotal();
-    alert("保存しました");
-  }catch(error){
-    console.error("save error:", error);
-    alert("データの保存に失敗しました\n" + error);
-  }
-}
-
 function search(){
   let s = id("search").value.toLowerCase();
 
