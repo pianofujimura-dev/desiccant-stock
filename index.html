@@ -233,26 +233,31 @@ hr{
       </div>
 
       <div id="moveSection" class="sectionBody">
-        <div class="inlineRow">
-          <span class="label">調律師:</span>
-          <select id="moveName"></select>
+  <div class="inlineRow">
+    <span class="label">調律師:</span>
+    <select id="moveName"></select>
 
-          <span class="label">箱数:</span>
-          <select id="moveBoxCount">
-            <option value="1">1箱</option>
-            <option value="2">2箱</option>
-            <option value="3">3箱</option>
-            <option value="4">4箱</option>
-            <option value="5">5箱</option>
-            <option value="6">6箱</option>
-            <option value="7">7箱</option>
-            <option value="8">8箱</option>
-            <option value="9">9箱</option>
-            <option value="10">10箱</option>
-          </select>
+    <span class="label">箱数:</span>
+    <select id="moveBoxCount">
+      <option value="0">0箱</option>
+      <option value="1">1箱</option>
+      <option value="2">2箱</option>
+      <option value="3">3箱</option>
+      <option value="4">4箱</option>
+      <option value="5">5箱</option>
+      <option value="6">6箱</option>
+      <option value="7">7箱</option>
+      <option value="8">8箱</option>
+      <option value="9">9箱</option>
+      <option value="10">10箱</option>
+    </select>
 
-          <button onclick="moveOne()">渡す</button>
-        </div>
+    <span class="label">個数:</span>
+    <input type="number" id="movePieceQty" min="0" value="0" style="width:90px;">
+
+    <button onclick="moveOne()">渡す</button>
+  </div>
+</div>
       </div>
     </div>
 
@@ -488,6 +493,7 @@ function clearInputs(){
   id("stockInDate").value = "";
   id("boxCount").value = "";
   id("moveBoxCount").value = "1";
+  id("movePieceQty").value = "0";
 
   id("serviceDate").value = "";
   id("serviceAddr").value = "";
@@ -587,13 +593,37 @@ async function moveOne(){
     return;
   }
 
-  let box = Number(id("moveBoxCount").value);
-  let qty = box * 30;
+  let box = Number(id("moveBoxCount").value || 0);
+  let piece = Number(id("movePieceQty").value || 0);
+
+  if(box <= 0 && piece <= 0){
+    alert("箱数または個数を入力してください");
+    return;
+  }
+
+  let qty = box * 30 + piece;
+
+  let warehouseStock = 0;
+  records.forEach(r => {
+    if(r.tuner === "木津倉庫"){
+      warehouseStock -= Number(r.qty || 0);
+    }
+  });
+
+  if(warehouseStock < qty){
+    alert("木津倉庫の在庫が足りません");
+    return;
+  }
+
+  let label = [];
+  if(box > 0) label.push(box + "箱");
+  if(piece > 0) label.push(piece + "個");
+
   let pairId = "move_" + Date.now();
 
   records.push({
     tuner: "木津倉庫",
-    date: "持出(" + box + "箱)",
+    date: "持出(" + label.join("+") + ")",
     addr: "",
     name: to,
     qty: qty,
@@ -602,7 +632,7 @@ async function moveOne(){
 
   records.push({
     tuner: to,
-    date: "倉庫(" + box + "箱)",
+    date: "倉庫(" + label.join("+") + ")",
     addr: "",
     name: "",
     qty: -qty,
@@ -613,7 +643,6 @@ async function moveOne(){
   clearInputs();
   update();
 }
-
 async function addService(){
   let date = id("serviceDate").value;
   let addr = id("serviceAddr").value;
