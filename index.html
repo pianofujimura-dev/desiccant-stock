@@ -690,13 +690,15 @@ async function addInitialStock(){
 }
 
 async function add(){
-  let date = id("date").value;
-  let addr = id("addr").value;
-  let name = id("name").value;
-  let qty = Number(id("qty").value);
+  let date = id("date").value.trim();
+  let addr = id("addr").value.trim();
+  let name = id("name").value.trim();
+  let qtyText = id("qty").value.trim();
 
-  if(!date || !addr || !name || !qty){
-    alert("日付・住所・名前・個数を入力してください");
+  let qty = qtyText === "" ? 0 : Number(qtyText);
+
+  if(isNaN(qty)){
+    alert("個数は数字で入力してください");
     return;
   }
 
@@ -712,7 +714,6 @@ async function add(){
   clearInputs();
   update();
 }
-
 function update(){
   let tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
