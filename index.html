@@ -270,7 +270,8 @@ hr{
       <div id="serviceSection" class="sectionBody">
         <div class="inlineRow">
           <span class="label">日付:</span>
-          <input type="date" id="serviceDate">
+　　　　　<input type="date" id="date">
+　　　　　<button type="button" onclick="openWorkPage()">参照</button>
 
           <span class="label">住所:</span>
           <input id="serviceAddr">
@@ -943,6 +944,19 @@ function convertQtyToBoxText(qty){
 
 function id(x){
   return document.getElementById(x);
+}
+
+function openWorkPage(){
+  const date = id("date").value;
+
+  if(!date){
+    alert("先に日付を入力してください");
+    return;
+  }
+
+  // 例：work.piano83.jp が ?date=YYYY-MM-DD に対応している場合
+  const url = "http://work.piano83.jp/?date=" + encodeURIComponent(date);
+  window.open(url, "_blank");
 }
 </script>
 
