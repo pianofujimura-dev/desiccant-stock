@@ -227,7 +227,7 @@ hr{
     display:none !important;
   }
 
-  #serchBox{
+  #searchBox{
     display:none !important;
   }
 
@@ -270,7 +270,9 @@ hr{
     padding:6px;
     font-size:14px;
   }
-}}</style>
+}
+
+</style>
 </head>
 <body>
 
@@ -305,7 +307,7 @@ hr{
   <span class="stock" id="stock"></span>
 </div>
 
-  <div class="box" id="inputAreaBox"S>
+  <div class="box" id="inputAreaBox">
 
     <div id="normalIn" style="display:none;">
       <div class="guideTitle inColor" onclick="toggleSection('inSection')">
@@ -463,6 +465,7 @@ hr{
           <th>名前</th>
           <th>個数</th>
           <th>削除</th>
+          <th>編集</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -637,14 +640,13 @@ function clearInputs(){
   if(id("updateBtn")) id("updateBtn").style.display = "none";
   if(id("cancelEditBtn")) id("cancelEditBtn").style.display = "none";
 }
-}
+
 
 function goHome(){
   id("home").style.display = "block";
   id("page").style.display = "none";
   current = "";
   updateTotal();
-  updateDisplayModeLabel();
 }
 
 
@@ -1084,9 +1086,6 @@ function id(x){
   return document.getElementById(x);
 }
 
-function printCurrentPage(){
-  window.print();
-}
 function printCurrentPage(){
 
   const today = new Date();
