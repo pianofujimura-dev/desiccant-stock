@@ -315,8 +315,7 @@ hr{
       <div id="sellSection" class="sectionBody">
         <div class="inlineRow">
           <span class="label">日付:</span>
-　　　　　<input type="date" id="date">
-　　　　　<button type="button" onclick="openWorkPage('date')">参照</button>
+          <input type="date" id="date">
 
           <span class="label">住所:</span>
           <input id="addr">
@@ -947,18 +946,7 @@ function id(x){
   return document.getElementById(x);
 }
 
-function openWorkPage(dateInputId){
-  const el = id(dateInputId);
-
-  if(!el || !el.value){
-    alert("先に日付を入力してください");
-    return;
-  }
-
-  const date = el.value;
-  const url = "http://work.piano83.jp/?date=" + encodeURIComponent(date);
-  window.open(url, "_blank");
-}</script>
+</script>
 
 </body>
 </html>
