@@ -168,13 +168,11 @@ hr{
 <h1>乾燥剤管理システム</h1>
 
 <div id="home">
-  <div class="box" id="warehouseBox">
+ <div class="box" id="warehouseBox">
   木津倉庫 残数
   <span class="stock" id="totalStock">0個</span>
   <span id="warehouseButton"></span>
-  <button class="modeBtn" onclick="changeDisplayMode()">表示切替</button>
   <button class="modeBtn" onclick="exportCSV()">CSV出力</button>
-  <span class="smallNote" id="displayModeLabel">現在: 個数表示</span>
 </div>
 
   <div class="box">
@@ -187,13 +185,11 @@ hr{
 
 <div id="page" style="display:none;">
   <div class="box">
-    <button onclick="goHome()">戻る</button>
-    <h2 id="title"></h2>
-    残数
-    <span class="stock" id="stock"></span>
-    <button class="modeBtn" onclick="changeDisplayMode()">表示切替</button>
-    <span class="smallNote" id="displayModeLabelPage">現在: 個数表示</span>
-  </div>
+  <button onclick="goHome()">戻る</button>
+  <h2 id="title"></h2>
+  残数
+  <span class="stock" id="stock"></span>
+</div>
 
   <div class="box">
 
@@ -358,7 +354,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzFGVJhVdH3EW1XI9I1nCgm
 
 let records = [];
 let current = "";
-let displayMode = localStorage.getItem("displayMode") || "piece";
+let displayMode = "both";
 
 async function loadRecords(){
   try{
@@ -389,8 +385,6 @@ async function loadRecords(){
     if(current){
       update();
     }
-
-    updateDisplayModeLabel();
   }catch(error){
     console.error("load error:", error);
     alert("データの読み込みに失敗しました\n" + error.message);
@@ -399,7 +393,6 @@ async function loadRecords(){
     if(current){
       update();
     }
-    updateDisplayModeLabel();
   }
 }
 
@@ -483,7 +476,6 @@ function openPage(name){
   }
 
   update();
-  updateDisplayModeLabel();
 }
 
 function clearInputs(){
@@ -524,70 +516,28 @@ function goHome(){
   updateDisplayModeLabel();
 }
 
-function changeDisplayMode(){
-  if(displayMode === "piece"){
-    displayMode = "box";
-  }else if(displayMode === "box"){
-    displayMode = "both";
-  }else{
-    displayMode = "piece";
-  }
-
-  localStorage.setItem("displayMode", displayMode);
-  updateTotal();
-  if(current){
-    update();
-  }
-  updateDisplayModeLabel();
-}
-
-function updateDisplayModeLabel(){
-  let text = "現在: 個数表示";
-
-  if(displayMode === "box"){
-    text = "現在: 箱表示";
-  }else if(displayMode === "both"){
-    text = "現在: 箱＋個表示";
-  }
-
-  if(id("displayModeLabel")){
-    id("displayModeLabel").innerText = text;
-  }
-  if(id("displayModeLabelPage")){
-    id("displayModeLabelPage").innerText = text;
-  }
-}
 
 function formatQty(q){
   q = Number(q || 0);
 
-  if(displayMode === "piece"){
-    return q + "個";
+  const abs = Math.abs(q);
+  const box = Math.floor(abs / 30);
+  const piece = abs % 30;
+
+  if(abs === 0){
+    return "0個";
   }
 
-  const box = Math.floor(q / 30);
-  const piece = q % 30;
-
-  if(displayMode === "box"){
-    return box + "箱";
+  if(box === 0){
+    return (q < 0 ? "-" : "") + piece + "個";
   }
 
-  if(displayMode === "both"){
-    if(q === 0){
-      return "0個";
-    }
-    if(box === 0){
-      return piece + "個";
-    }
-    if(piece === 0){
-      return box + "箱";
-    }
-    return box + "箱" + piece + "個";
+  if(piece === 0){
+    return (q < 0 ? "-" : "") + box + "箱";
   }
 
-  return q + "個";
+  return (q < 0 ? "-" : "") + box + "箱" + piece + "個";
 }
-
 async function stockInWarehouse(){
   let stockDate = id("stockInDate").value;
   let pieceQty = Number(id("inQtyPage").value || 0);
@@ -879,7 +829,6 @@ async function save(){
 
     localStorage.setItem("records", JSON.stringify(records));
     updateTotal();
-    updateDisplayModeLabel();
     alert("保存しました");
   }catch(error){
     console.error("save error:", error);
