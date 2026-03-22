@@ -270,6 +270,24 @@ hr{
       </div>
     </div>
 
+    <div id="initialStockBox" style="display:none;">
+  <hr>
+
+  <div class="guideTitle" onclick="toggleSection('initialStockSection')">
+    今持っている乾燥剤を追加
+  </div>
+
+  <div id="initialStockSection" class="sectionBody">
+    <span class="label">日付:</span>
+    <input type="date" id="initialDate">
+
+    <span class="label">個数:</span>
+    <input type="number" id="initialQty" min="1" style="width:100px;">
+
+    <button onclick="addInitialStock()">追加する</button>
+  </div>
+</div>
+
     <div id="sellBox">
       <span class="label">日付:</span>
       <input type="date" id="date">
@@ -518,16 +536,17 @@ function openPage(name){
     id("normalIn").style.display = "block";
     id("sellBox").style.display = "none";
     id("serviceBox").style.display = "block";
+    id("initialStockBox").style.display = "none";
   }else{
     id("moveBox").style.display = "none";
     id("normalIn").style.display = "none";
     id("sellBox").style.display = "block";
     id("serviceBox").style.display = "none";
+    id("initialStockBox").style.display = "block";
   }
 
   update();
 }
-
 function clearInputs(){
   id("date").value = "";
   id("addr").value = "";
@@ -544,6 +563,9 @@ function clearInputs(){
   id("serviceName").value = "";
   id("serviceQty").value = "2";
 
+  id("initialDate").value = "";
+  id("initialQty").value = "";
+
   if(id("moveName").options.length > 0){
     id("moveName").value = "";
   }
@@ -551,8 +573,8 @@ function clearInputs(){
   id("inSection").style.display = "none";
   id("moveSection").style.display = "none";
   id("serviceSection").style.display = "none";
+  id("initialStockSection").style.display = "none";
 }
-
 function goHome(){
   id("home").style.display = "block";
   id("page").style.display = "none";
@@ -576,6 +598,28 @@ async function add(){
     addr: addr,
     name: name,
     qty: qty
+  });
+
+  await save();
+  clearInputs();
+  update();
+}
+
+async function addInitialStock(){
+  let date = id("initialDate").value;
+  let qty = Number(id("initialQty").value);
+
+  if(!date || !qty || qty <= 0){
+    alert("日付と個数を入力してください");
+    return;
+  }
+
+  records.push({
+    tuner: current,
+    date: date + " 初期在庫",
+    addr: "",
+    name: "",
+    qty: -qty
   });
 
   await save();
