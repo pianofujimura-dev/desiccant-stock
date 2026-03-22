@@ -525,9 +525,7 @@ function toggleSection(sectionId){
   const target = document.getElementById(sectionId);
   if(!target) return;
 
-  const page = target.closest("#page") || document;
-  const sections = page.querySelectorAll(".sectionBody");
-
+  const sections = document.querySelectorAll("#page .sectionBody");
   const isOpen = window.getComputedStyle(target).display !== "none";
 
   sections.forEach(section => {
@@ -537,7 +535,10 @@ function toggleSection(sectionId){
   if(!isOpen){
     target.style.display = "block";
   }
-}  current = name;
+}
+
+function openPage(name){
+  current = name;
 
   id("home").style.display = "none";
   id("page").style.display = "block";
@@ -560,6 +561,7 @@ function toggleSection(sectionId){
   }
 
   update();
+
 }
 function clearInputs(){
   id("date").value = "";
@@ -577,6 +579,9 @@ function clearInputs(){
   id("serviceName").value = "";
   id("serviceQty").value = "2";
 
+  id("initialDate").value = "";
+  id("initialQty").value = "";
+
   if(id("moveName").options.length > 0){
     id("moveName").value = "";
   }
@@ -585,7 +590,9 @@ function clearInputs(){
   id("moveSection").style.display = "none";
   id("serviceSection").style.display = "none";
   id("sellSection").style.display = "none";
-}function goHome(){
+  id("initialStockSection").style.display = "none";
+}
+function goHome(){
   id("home").style.display = "block";
   id("page").style.display = "none";
   updateTotal();
