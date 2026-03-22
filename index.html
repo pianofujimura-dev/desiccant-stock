@@ -214,13 +214,25 @@ hr{
 }
 
 @media print{
-
   body{
     background:white;
     margin:0;
   }
 
   #home{
+    display:none !important;
+  }
+
+  #inputAreaBox{
+    display:none !important;
+  }
+
+  #serchBox{
+    display:none !important;
+  }
+
+  button,
+  .delete{
     display:none !important;
   }
 
@@ -233,6 +245,7 @@ hr{
   #initialStockBox,
   #sellBox,
   #search,
+  #searchBox,
   .delete{
     display:none !important;
   }
@@ -257,7 +270,7 @@ hr{
     padding:6px;
     font-size:14px;
   }
-}</style>
+}}</style>
 </head>
 <body>
 
@@ -292,7 +305,7 @@ hr{
   <span class="stock" id="stock"></span>
 </div>
 
-  <div class="box">
+  <div class="box" id="inputAreaBox"S>
 
     <div id="normalIn" style="display:none;">
       <div class="guideTitle inColor" onclick="toggleSection('inSection')">
@@ -434,10 +447,10 @@ hr{
 
   </div>
 
-  <div class="box">
-    <span class="label">検索:</span>
-    <input id="search" onkeyup="search()" placeholder="日付・住所・名前で検索">
-  </div>
+ <div class="box" id="searchBox">
+  <span class="label">検索:</span>
+  <input id="search" onkeyup="search()" placeholder="日付・住所・名前で検索">
+</div>
 
   <div class="box">
     <table id="table">
