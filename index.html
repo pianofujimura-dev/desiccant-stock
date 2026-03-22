@@ -526,24 +526,7 @@ function goHome(){
 
 function formatQty(q){
   q = Number(q || 0);
-
-  const abs = Math.abs(q);
-  const box = Math.floor(abs / 30);
-  const piece = abs % 30;
-
-  if(abs === 0){
-    return "0個";
-  }
-
-  if(box === 0){
-    return (q < 0 ? "-" : "") + piece + "個";
-  }
-
-  if(piece === 0){
-    return (q < 0 ? "-" : "") + box + "箱";
-  }
-
-  return (q < 0 ? "-" : "") + box + "箱" + piece + "個";
+  return q + "個";
 }
 async function stockInWarehouse(){
   let stockDate = id("stockInDate").value;
