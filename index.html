@@ -440,7 +440,9 @@ hr{
           <span class="label">個数:</span>
           <input type="number" id="qty" min="1" style="width:100px;">
 
-          <button onclick="add()">販売</button>
+          <button id="addBtn" onclick="add()">販売</button>
+          <button id="updateBtn" onclick="updateRecord()" style="display:none;">更新</button>
+          <button id="cancelEditBtn" onclick="cancelEdit()" style="display:none; background:#777;">キャンセル</button>
         </div>
       </div>
     </div>
@@ -474,6 +476,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzFGVJhVdH3EW1XI9I1nCgm
 
 let records = [];
 let current = "";
+let editingIndex = -1;
 let displayMode = "both";
 
 async function loadRecords(){
@@ -627,6 +630,13 @@ function clearInputs(){
   id("serviceSection").style.display = "none";
   id("initialStockSection").style.display = "none";
   id("sellSection").style.display = "none";
+
+  editingIndex = -1;
+
+  if(id("addBtn")) id("addBtn").style.display = "inline-block";
+  if(id("updateBtn")) id("updateBtn").style.display = "none";
+  if(id("cancelEditBtn")) id("cancelEditBtn").style.display = "none";
+}
 }
 
 function goHome(){
@@ -866,13 +876,26 @@ function update(){
     let tr = document.createElement("tr");
     tr.style.background = color;
 
-    tr.innerHTML = `
-      <td>${r.date || ""}</td>
-      <td>${r.addr || ""}</td>
-      <td>${r.name || ""}</td>
-      <td>${formatQty(Number(r.qty || 0))}</td>
-      <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
-    `;
+    const canEdit =
+  !(r.date || "").includes("入庫") &&
+  !(r.date || "").includes("持出") &&
+  !(r.date || "").includes("初期在庫") &&
+  !(r.name || "").includes("リメイク");
+
+tr.innerHTML = `
+  <td>${r.date || ""}</td>
+  <td>${r.addr || ""}</td>
+  <td>${r.name || ""}</td>
+  <td>${formatQty(Number(r.qty || 0))}</td>
+  <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
+  <td>
+    ${
+      canEdit
+        ? `<button onclick="editRecord(${r.originalIndex})" style="background:#ff9800;">編集</button>`
+        : `-`
+    }
+  </td>
+`;
 
     tbody.appendChild(tr);
   });
@@ -1081,6 +1104,68 @@ function printCurrentPage(){
   id("printSub").innerText = sub;
 
   window.print();
+}
+
+function editRecord(index){
+  const r = records[index];
+  if(!r) return;
+
+  editingIndex = index;
+
+  id("date").value = r.date || "";
+  id("addr").value = r.addr || "";
+  id("name").value = r.name || "";
+  id("qty").value = Number(r.qty || 0);
+
+  id("sellSection").style.display = "block";
+
+  id("addBtn").style.display = "none";
+  id("updateBtn").style.display = "inline-block";
+  id("cancelEditBtn").style.display = "inline-block";
+}
+
+async function updateRecord(){
+  if(editingIndex < 0){
+    alert("編集対象がありません");
+    return;
+  }
+
+  let date = id("date").value.trim();
+  let addr = id("addr").value.trim();
+  let name = id("name").value.trim();
+  let qtyText = id("qty").value.trim();
+
+  let qty = qtyText === "" ? 0 : Number(qtyText);
+
+  if(isNaN(qty)){
+    alert("個数は数字で入力してください");
+    return;
+  }
+
+  records[editingIndex] = {
+    ...records[editingIndex],
+    date: date,
+    addr: addr,
+    name: name,
+    qty: qty
+  };
+
+  await save();
+  cancelEdit();
+  update();
+}
+
+function cancelEdit(){
+  editingIndex = -1;
+
+  id("date").value = "";
+  id("addr").value = "";
+  id("name").value = "";
+  id("qty").value = "";
+
+  id("addBtn").style.display = "inline-block";
+  id("updateBtn").style.display = "none";
+  id("cancelEditBtn").style.display = "none";
 }
 </script>
 
