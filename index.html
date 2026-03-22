@@ -522,9 +522,13 @@ async function addService(){
 }
 
 function toggleSection(sectionId){
-  const sections = document.querySelectorAll(".sectionBody");
   const target = document.getElementById(sectionId);
-  const isOpen = target.style.display === "block";
+  if(!target) return;
+
+  const page = target.closest("#page") || document;
+  const sections = page.querySelectorAll(".sectionBody");
+
+  const isOpen = window.getComputedStyle(target).display !== "none";
 
   sections.forEach(section => {
     section.style.display = "none";
@@ -533,9 +537,7 @@ function toggleSection(sectionId){
   if(!isOpen){
     target.style.display = "block";
   }
-}
-function openPage(name){
-  current = name;
+}  current = name;
 
   id("home").style.display = "none";
   id("page").style.display = "block";
