@@ -169,12 +169,13 @@ hr{
 
 <div id="home">
   <div class="box" id="warehouseBox">
-    木津倉庫 残数
-    <span class="stock" id="totalStock">0個</span>
-    <span id="warehouseButton"></span>
-    <button class="modeBtn" onclick="changeDisplayMode()">表示切替</button>
-    <span class="smallNote" id="displayModeLabel">現在: 個数表示</span>
-  </div>
+  木津倉庫 残数
+  <span class="stock" id="totalStock">0個</span>
+  <span id="warehouseButton"></span>
+  <button class="modeBtn" onclick="changeDisplayMode()">表示切替</button>
+  <button class="modeBtn" onclick="exportCSV()">CSV出力</button>
+  <span class="smallNote" id="displayModeLabel">現在: 個数表示</span>
+</div>
 
   <div class="box">
     <div id="tunerButtons"></div>
@@ -884,6 +885,81 @@ async function save(){
     console.error("save error:", error);
     alert("データの保存に失敗しました\n" + error);
   }
+}
+
+function exportCSV(){
+  if(!Array.isArray(records) || records.length === 0){
+    alert("出力するデータがありません");
+    return;
+  }
+
+  const headers = ["担当", "日付", "住所", "名前", "個数", "箱換算", "pairId"];
+  const rows = [headers];
+
+  records.forEach(r => {
+    const qty = Number(r.qty || 0);
+    const boxText = convertQtyToBoxText(qty);
+
+    rows.push([
+      escapeCSV(r.tuner || ""),
+      escapeCSV(r.date || ""),
+      escapeCSV(r.addr || ""),
+      escapeCSV(r.name || ""),
+      qty,
+      escapeCSV(boxText),
+      escapeCSV(r.pairId || "")
+    ]);
+  });
+
+  const csvContent = "\uFEFF" + rows.map(row => row.join(",")).join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const now = new Date();
+  const fileName =
+    "乾燥剤管理_" +
+    now.getFullYear() +
+    String(now.getMonth() + 1).padStart(2, "0") +
+    String(now.getDate()).padStart(2, "0") +
+    "_" +
+    String(now.getHours()).padStart(2, "0") +
+    String(now.getMinutes()).padStart(2, "0") +
+    String(now.getSeconds()).padStart(2, "0") +
+    ".csv";
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = fileName;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  URL.revokeObjectURL(url);
+}
+
+function escapeCSV(value){
+  const str = String(value ?? "");
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
+function convertQtyToBoxText(qty){
+  qty = Number(qty || 0);
+
+  const absQty = Math.abs(qty);
+  const box = Math.floor(absQty / 30);
+  const piece = absQty % 30;
+
+  let text = "";
+
+  if(box > 0 && piece > 0){
+    text = box + "箱" + piece + "個";
+  }else if(box > 0){
+    text = box + "箱";
+  }else{
+    text = piece + "個";
+  }
+
+  return qty < 0 ? "-" + text : text;
 }
 
 function id(x){
