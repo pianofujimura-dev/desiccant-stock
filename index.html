@@ -161,6 +161,48 @@ hr{
     width:100%;
   }
 }
+@media print{
+  body{
+    background:white;
+    margin:0;
+  }
+
+  #home{
+    display:none !important;
+  }
+
+  #page{
+    display:block !important;
+  }
+
+  button,
+  #normalIn,
+  #moveBox,
+  #serviceBox,
+  #initialStockBox,
+  #sellBox,
+  .delete,
+  #search{
+    display:none !important;
+  }
+
+  .box{
+    box-shadow:none;
+    border:1px solid #ccc;
+    margin-bottom:10px;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  th, td{
+    border:1px solid #999;
+    font-size:14px;
+    padding:6px;
+  }
+}
 </style>
 </head>
 <body>
@@ -186,6 +228,7 @@ hr{
 <div id="page" style="display:none;">
   <div class="box">
   <button onclick="goHome()">戻る</button>
+  <button onclick="printCurrentPage()">印刷</button>
   <h2 id="title"></h2>
   残数
   <span class="stock" id="stock"></span>
@@ -947,6 +990,9 @@ function id(x){
   return document.getElementById(x);
 }
 
+function printCurrentPage(){
+  window.print();
+}
 </script>
 
 </body>
