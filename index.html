@@ -288,7 +288,15 @@ hr{
   </div>
 </div>
 
-    <div id="sellBox">
+    <div id="sellBox" style="display:none;">
+  <hr>
+
+  <div class="guideTitle" onclick="toggleSection('sellSection')">
+    販売したとき
+  </div>
+
+  <div id="sellSection" class="sectionBody">
+    <div class="inlineRow">
       <span class="label">日付:</span>
       <input type="date" id="date">
 
@@ -299,12 +307,12 @@ hr{
       <input id="name">
 
       <span class="label">個数:</span>
-      <input type="number" id="qty" min="1">
+      <input type="number" id="qty" min="1" style="width:100px;">
 
       <button onclick="add()">販売</button>
     </div>
-
   </div>
+</div>
 
   <div class="box">
     <span class="label">検索:</span>
@@ -563,9 +571,6 @@ function clearInputs(){
   id("serviceName").value = "";
   id("serviceQty").value = "2";
 
-  id("initialDate").value = "";
-  id("initialQty").value = "";
-
   if(id("moveName").options.length > 0){
     id("moveName").value = "";
   }
@@ -573,9 +578,8 @@ function clearInputs(){
   id("inSection").style.display = "none";
   id("moveSection").style.display = "none";
   id("serviceSection").style.display = "none";
-  id("initialStockSection").style.display = "none";
-}
-function goHome(){
+  id("sellSection").style.display = "none";
+}function goHome(){
   id("home").style.display = "block";
   id("page").style.display = "none";
   updateTotal();
