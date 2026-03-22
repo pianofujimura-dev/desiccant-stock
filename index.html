@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>乾燥剤管理V5</title>
 <style>
 body{
@@ -20,23 +21,10 @@ h1{
   border-radius:12px;
   box-shadow:0 0 6px rgba(0,0,0,0.15);
 }
-
-#sellBox{
-  display:flex;
-  gap:8px;
-  align-items:center;
-  flex-wrap:wrap;
-}
-
-#sellBox input,
-#sellBox button,
-#sellBox .label{
-  margin:0;
-}
 button{
-  font-size:18px;
-  padding:10px 16px;
-  margin:5px;
+  font-size:20px;
+  padding:12px 18px;
+  margin:6px;
   border:none;
   border-radius:10px;
   background:#4caf50;
@@ -48,28 +36,6 @@ button:hover{
 }
 .warehouseBtn{
   background:#e53935;
-}
-button{
-  font-size:20px;
-  padding:12px 18px;
-  margin:6px;
-}
-@media (max-width:600px){
-
-button{
-  width:100%;
-  font-size:22px;
-}
-
-input,select{
-  width:100%;
-}
-
-}
-#warehouseBox{
-  display:flex;
-  align-items:center;
-  gap:15px;
 }
 .warehouseBtn:hover{
   background:#c62828;
@@ -111,43 +77,77 @@ hr{
 .label{
   font-weight:bold;
 }
-
-.inlineRow{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-}
-
-#tunerButtons{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-}
-
 .inlineRow{
   display:flex;
   align-items:center;
   gap:12px;
   flex-wrap:wrap;
 }
-
+#tunerButtons{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+#warehouseBox{
+  display:flex;
+  align-items:center;
+  gap:15px;
+}
 .guideTitle{
   font-size:20px;
   font-weight:bold;
-  background:#e8f2ff;
-  border-left:6px solid #4caf50;
-  padding:10px 14px;
+  padding:12px 14px;
   margin:10px 0 14px 0;
-  border-radius:8px;
+  border-radius:10px;
   cursor:pointer;
+  transition:0.2s;
 }
-
+.guideTitle:hover{
+  transform:translateY(-1px);
+  box-shadow:0 2px 8px rgba(0,0,0,0.12);
+}
+.guideTitle.inColor{
+  background:#e3f2fd;
+  border-left:6px solid #64b5f6;
+}
+.guideTitle.moveColor{
+  background:#ffe0b2;
+  border-left:6px solid #fb8c00;
+}
+.guideTitle.serviceColor{
+  background:#fff3cd;
+  border-left:6px solid #fbc02d;
+}
+.guideTitle.initialColor{
+  background:#e8f5e9;
+  border-left:6px solid #43a047;
+}
+.guideTitle.sellColor{
+  background:#ffcdd2;
+  border-left:6px solid #e53935;
+}
 .sectionBody{
   display:none;
   margin:0;
   padding:0;
   overflow:hidden;
+}
+#sellBox{
+  display:none;
+}
+#sellBox input,
+#sellBox button,
+#sellBox .label{
+  margin:0;
+}
+@media (max-width:600px){
+  button{
+    width:100%;
+    font-size:22px;
+  }
+  input,select{
+    width:100%;
+  }
 }
 </style>
 </head>
@@ -156,7 +156,6 @@ hr{
 <h1>乾燥剤管理システム</h1>
 
 <div id="home">
-
   <div class="box" id="warehouseBox">
     木津倉庫 残数
     <span class="stock" id="totalStock">0</span>
@@ -165,15 +164,13 @@ hr{
 
   <div class="box">
     <div id="tunerButtons"></div>
-   <div class="box">
-    <div id="tunerStockList"></div>
-   </div>
+    <div class="box">
+      <div id="tunerStockList"></div>
+    </div>
   </div>
-
 </div>
 
-<div id="page" style="display:none">
-
+<div id="page" style="display:none;">
   <div class="box">
     <button onclick="goHome()">戻る</button>
     <h2 id="title"></h2>
@@ -184,7 +181,7 @@ hr{
   <div class="box">
 
     <div id="normalIn" style="display:none;">
-      <div class="guideTitle" onclick="toggleSection('inSection')">
+      <div class="guideTitle inColor" onclick="toggleSection('inSection')">
         倉庫に入庫したとき
       </div>
 
@@ -194,7 +191,7 @@ hr{
           <input type="date" id="stockInDate">
 
           <span class="label">個数:</span>
-          <input type="number" id="inQtyPage" min="1" style="width:80px;">
+          <input type="number" id="inQtyPage" min="1" style="width:90px;">
 
           <span class="label">箱:</span>
           <select id="boxCount">
@@ -218,101 +215,104 @@ hr{
 
     <div id="moveBox" style="display:none;">
       <hr>
-      <div class="guideTitle" onclick="toggleSection('moveSection')">
+      <div class="guideTitle moveColor" onclick="toggleSection('moveSection')">
         調律師に渡すとき
       </div>
 
       <div id="moveSection" class="sectionBody">
-        <span class="label">調律師:</span>
-        <select id="moveName"></select>
+        <div class="inlineRow">
+          <span class="label">調律師:</span>
+          <select id="moveName"></select>
 
-        <span class="label">箱数:</span>
-        <select id="moveBoxCount">
-          <option value="1">1箱</option>
-          <option value="2">2箱</option>
-          <option value="3">3箱</option>
-          <option value="4">4箱</option>
-          <option value="5">5箱</option>
-          <option value="6">6箱</option>
-          <option value="7">7箱</option>
-          <option value="8">8箱</option>
-          <option value="9">9箱</option>
-          <option value="10">10箱</option>
-        </select>
+          <span class="label">箱数:</span>
+          <select id="moveBoxCount">
+            <option value="1">1箱</option>
+            <option value="2">2箱</option>
+            <option value="3">3箱</option>
+            <option value="4">4箱</option>
+            <option value="5">5箱</option>
+            <option value="6">6箱</option>
+            <option value="7">7箱</option>
+            <option value="8">8箱</option>
+            <option value="9">9箱</option>
+            <option value="10">10箱</option>
+          </select>
 
-        <button onclick="moveOne()">渡す</button>
+          <button onclick="moveOne()">渡す</button>
+        </div>
       </div>
     </div>
 
     <div id="serviceBox" style="display:none;">
       <hr>
-
-      <div class="guideTitle" onclick="toggleSection('serviceSection')">
+      <div class="guideTitle serviceColor" onclick="toggleSection('serviceSection')">
         リメイクサービス時
       </div>
 
       <div id="serviceSection" class="sectionBody">
-        リメイクサービス使用：
+        <div class="inlineRow">
+          <span class="label">日付:</span>
+          <input type="date" id="serviceDate">
 
-        日付:
-        <input type="date" id="serviceDate">
+          <span class="label">住所:</span>
+          <input id="serviceAddr">
 
-        住所:
-        <input id="serviceAddr">
+          <span class="label">名前:</span>
+          <input id="serviceName">
 
-        名前
-        <input id="serviceName">
+          <span class="label">個数:</span>
+          <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
 
-        個数:
-        <input type="number" id="serviceQty" value="2" min="1">
-
-        <button onclick="addService()">リメイクサービス</button>
+          <button onclick="addService()">リメイクサービス</button>
+        </div>
       </div>
     </div>
 
     <div id="initialStockBox" style="display:none;">
-  <hr>
+      <hr>
+      <div class="guideTitle initialColor" onclick="toggleSection('initialStockSection')">
+        今持っている乾燥剤を追加
+      </div>
 
-  <div class="guideTitle" onclick="toggleSection('initialStockSection')">
-    今持っている乾燥剤を追加
-  </div>
+      <div id="initialStockSection" class="sectionBody">
+        <div class="inlineRow">
+          <span class="label">日付:</span>
+          <input type="date" id="initialDate">
 
-  <div id="initialStockSection" class="sectionBody">
-    <span class="label">日付:</span>
-    <input type="date" id="initialDate">
+          <span class="label">個数:</span>
+          <input type="number" id="initialQty" min="1" style="width:100px;">
 
-    <span class="label">個数:</span>
-    <input type="number" id="initialQty" min="1" style="width:100px;">
-
-    <button onclick="addInitialStock()">追加する</button>
-  </div>
-</div>
+          <button onclick="addInitialStock()">追加する</button>
+        </div>
+      </div>
+    </div>
 
     <div id="sellBox" style="display:none;">
-  <hr>
+      <hr>
+      <div class="guideTitle sellColor" onclick="toggleSection('sellSection')">
+        販売したとき
+      </div>
 
-  <div class="guideTitle" onclick="toggleSection('sellSection')">
-    販売したとき
-  </div>
+      <div id="sellSection" class="sectionBody">
+        <div class="inlineRow">
+          <span class="label">日付:</span>
+          <input type="date" id="date">
 
-  <div id="sellSection" class="sectionBody">
-    <div class="inlineRow">
-      <span class="label">日付:</span>
-      <input type="date" id="date">
+          <span class="label">住所:</span>
+          <input id="addr">
 
-      <span class="label">住所:</span>
-      <input id="addr">
+          <span class="label">名前:</span>
+          <input id="name">
 
-      <span class="label">名前:</span>
-      <input id="name">
+          <span class="label">個数:</span>
+          <input type="number" id="qty" min="1" style="width:100px;">
 
-      <span class="label">個数:</span>
-      <input type="number" id="qty" min="1" style="width:100px;">
-
-      <button onclick="add()">販売</button>
+          <button onclick="add()">販売</button>
+        </div>
+      </div>
     </div>
+
   </div>
-</div>
 
   <div class="box">
     <span class="label">検索:</span>
@@ -333,12 +333,11 @@ hr{
       <tbody></tbody>
     </table>
   </div>
-
 </div>
 
 <script>
 const tuners = ["木津倉庫", "青山", "辻本", "中村", "丸山", "土屋", "坂本", "多田", "巽"];
-const API_URL ="https://script.google.com/macros/s/AKfycbzFG8UiFzKnqt3u-kOsXylntTxhBGqHiGlx_4m_CXtDJd5UKx9J4OT0Y9MRBQIWvcBJ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzFG8UiFzKnqt3u-kOsXylntTxhBGqHiGlx_4m_CXtDJd5UKx9J4OT0Y9MRBQIWvcBJ/exec";
 
 let records = [];
 let current = "";
@@ -396,12 +395,14 @@ function buildTunerButtons(){
       warehouseBtn = `
         <button class="warehouseBtn" onclick="openPage('${name}')">
           ${name}
-        </button>`;
+        </button>
+      `;
     }else{
       html += `
         <button onclick="openPage('${name}')">
           ${name}
-        </button>`;
+        </button>
+      `;
     }
   });
 
@@ -419,6 +420,85 @@ function buildMoveOptions(){
     });
 
   id("moveName").innerHTML = options;
+}
+
+function toggleSection(sectionId){
+  const target = document.getElementById(sectionId);
+  if(!target) return;
+
+  const sections = document.querySelectorAll("#page .sectionBody");
+  const isOpen = window.getComputedStyle(target).display !== "none";
+
+  sections.forEach(section => {
+    section.style.display = "none";
+  });
+
+  if(!isOpen){
+    target.style.display = "block";
+  }
+}
+
+function openPage(name){
+  current = name;
+
+  id("home").style.display = "none";
+  id("page").style.display = "block";
+  id("title").innerText = name;
+
+  clearInputs();
+
+  if(name === "木津倉庫"){
+    id("moveBox").style.display = "block";
+    id("normalIn").style.display = "block";
+    id("serviceBox").style.display = "block";
+    id("initialStockBox").style.display = "none";
+    id("sellBox").style.display = "none";
+  }else{
+    id("moveBox").style.display = "none";
+    id("normalIn").style.display = "none";
+    id("serviceBox").style.display = "none";
+    id("initialStockBox").style.display = "block";
+    id("sellBox").style.display = "block";
+  }
+
+  update();
+}
+
+function clearInputs(){
+  id("date").value = "";
+  id("addr").value = "";
+  id("name").value = "";
+  id("qty").value = "";
+  id("inQtyPage").value = "";
+  id("search").value = "";
+  id("stockInDate").value = "";
+  id("boxCount").value = "";
+  id("moveBoxCount").value = "1";
+
+  id("serviceDate").value = "";
+  id("serviceAddr").value = "";
+  id("serviceName").value = "";
+  id("serviceQty").value = "2";
+
+  id("initialDate").value = "";
+  id("initialQty").value = "";
+
+  if(id("moveName").options.length > 0){
+    id("moveName").value = "";
+  }
+
+  id("inSection").style.display = "none";
+  id("moveSection").style.display = "none";
+  id("serviceSection").style.display = "none";
+  id("initialStockSection").style.display = "none";
+  id("sellSection").style.display = "none";
+}
+
+function goHome(){
+  id("home").style.display = "block";
+  id("page").style.display = "none";
+  current = "";
+  updateTotal();
 }
 
 async function stockInWarehouse(){
@@ -521,81 +601,26 @@ async function addService(){
   update();
 }
 
-function toggleSection(sectionId){
-  const target = document.getElementById(sectionId);
-  if(!target) return;
+async function addInitialStock(){
+  let date = id("initialDate").value;
+  let qty = Number(id("initialQty").value);
 
-  const sections = document.querySelectorAll("#page .sectionBody");
-  const isOpen = window.getComputedStyle(target).display !== "none";
+  if(!date || !qty || qty <= 0){
+    alert("日付と個数を入力してください");
+    return;
+  }
 
-  sections.forEach(section => {
-    section.style.display = "none";
+  records.push({
+    tuner: current,
+    date: date + " 初期在庫",
+    addr: "",
+    name: "",
+    qty: -qty
   });
 
-  if(!isOpen){
-    target.style.display = "block";
-  }
-}
-
-function openPage(name){
-  current = name;
-
-  id("home").style.display = "none";
-  id("page").style.display = "block";
-  id("title").innerText = name;
-
+  await save();
   clearInputs();
-
-  if(name === "木津倉庫"){
-    id("moveBox").style.display = "block";
-    id("normalIn").style.display = "block";
-    id("sellBox").style.display = "none";
-    id("serviceBox").style.display = "block";
-    id("initialStockBox").style.display = "none";
-  }else{
-    id("moveBox").style.display = "none";
-    id("normalIn").style.display = "none";
-    id("sellBox").style.display = "block";
-    id("serviceBox").style.display = "none";
-    id("initialStockBox").style.display = "block";
-  }
-
   update();
-
-}
-function clearInputs(){
-  id("date").value = "";
-  id("addr").value = "";
-  id("name").value = "";
-  id("qty").value = "";
-  id("inQtyPage").value = "";
-  id("search").value = "";
-  id("stockInDate").value = "";
-  id("boxCount").value = "";
-  id("moveBoxCount").value = "1";
-
-  id("serviceDate").value = "";
-  id("serviceAddr").value = "";
-  id("serviceName").value = "";
-  id("serviceQty").value = "2";
-
-  id("initialDate").value = "";
-  id("initialQty").value = "";
-
-  if(id("moveName").options.length > 0){
-    id("moveName").value = "";
-  }
-
-  id("inSection").style.display = "none";
-  id("moveSection").style.display = "none";
-  id("serviceSection").style.display = "none";
-  id("sellSection").style.display = "none";
-  id("initialStockSection").style.display = "none";
-}
-function goHome(){
-  id("home").style.display = "block";
-  id("page").style.display = "none";
-  updateTotal();
 }
 
 async function add(){
@@ -622,28 +647,6 @@ async function add(){
   update();
 }
 
-async function addInitialStock(){
-  let date = id("initialDate").value;
-  let qty = Number(id("initialQty").value);
-
-  if(!date || !qty || qty <= 0){
-    alert("日付と個数を入力してください");
-    return;
-  }
-
-  records.push({
-    tuner: current,
-    date: date + " 初期在庫",
-    addr: "",
-    name: "",
-    qty: -qty
-  });
-
-  await save();
-  clearInputs();
-  update();
-}
-
 function update(){
   let tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
@@ -663,19 +666,18 @@ function update(){
     stock -= Number(r.qty || 0);
   });
 
-  // 日付順ソート（新しい順）
-  const displayRecords = [...currentRecords].sort((a,b)=>{
+  const displayRecords = [...currentRecords].sort((a, b) => {
     return (b.date || "").localeCompare(a.date || "");
   });
 
   displayRecords.forEach(r => {
-
     let color = "";
 
-    if(r.date.includes("入庫")) color = "#e3f2fd";
-    else if(r.name.includes("リメイクサービス")) color = "#fff3cd";
-    else if(r.date.includes("持出")) color = "#ffe0b2";
-    else if(r.qty > 0) color = "#ffcdd2";
+    if((r.date || "").includes("入庫")) color = "#e3f2fd";
+    else if((r.date || "").includes("持出")) color = "#ffe0b2";
+    else if((r.name || "").includes("リメイクサービス")) color = "#fff3cd";
+    else if((r.date || "").includes("初期在庫")) color = "#e8f5e9";
+    else if(Number(r.qty || 0) > 0) color = "#ffcdd2";
     else color = "#e8f5e9";
 
     let tr = document.createElement("tr");
@@ -690,20 +692,18 @@ function update(){
     `;
 
     tbody.appendChild(tr);
-
   });
 
   id("stock").innerText = stock;
 }
-function updateTunerStock(){
 
+function updateTunerStock(){
   let html = "";
 
-  tuners.forEach(name=>{
-
+  tuners.forEach(name => {
     let total = 0;
 
-    records.forEach(r=>{
+    records.forEach(r => {
       if(r.tuner === name){
         total -= Number(r.qty || 0);
       }
@@ -725,6 +725,7 @@ function updateTunerStock(){
 
   id("tunerStockList").innerHTML = html;
 }
+
 function updateTotal(){
   let total = 0;
 
@@ -740,9 +741,9 @@ function updateTotal(){
   });
 
   id("totalStock").innerText = total;
-
   updateTunerStock();
 }
+
 function search(){
   let s = id("search").value.toLowerCase();
 
@@ -752,7 +753,6 @@ function search(){
 }
 
 async function del(i){
-
   if(!confirm("削除しますか？")){
     return;
   }
