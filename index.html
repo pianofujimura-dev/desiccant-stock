@@ -116,7 +116,8 @@ hr{
 }
 .guideTitle.serviceColor{
   background:#fff3cd;
-  border-left:6px solid #fbc02d;
+  border-left:6px solid #fff3cd;
+  color:black;
 }
 .guideTitle.initialColor{
   background:#e8f5e9;
@@ -592,7 +593,7 @@ async function addService(){
     tuner: "木津倉庫",
     date: date,
     addr: addr,
-    name: "リメイクサービス：" + name,
+    name: "リメイク：" + name,
     qty: qty
   });
 
@@ -675,7 +676,7 @@ function update(){
 
     if((r.date || "").includes("入庫")) color = "#e3f2fd";
     else if((r.date || "").includes("持出")) color = "#ffe0b2";
-    else if((r.name || "").includes("リメイクサービス")) color = "#fff3cd";
+    else if((r.name || "").includes("リメイク")) color = "#fff3cd";
     else if((r.date || "").includes("初期在庫")) color = "#e8f5e9";
     else if(Number(r.qty || 0) > 0) color = "#ffcdd2";
     else color = "#e8f5e9";
