@@ -522,14 +522,18 @@ async function addService(){
 }
 
 function toggleSection(sectionId){
-  let el = document.getElementById(sectionId);
-  if(el.style.display === "block"){
-    el.style.display = "none";
-  }else{
-    el.style.display = "block";
+  const sections = document.querySelectorAll(".sectionBody");
+  const target = document.getElementById(sectionId);
+  const isOpen = target.style.display === "block";
+
+  sections.forEach(section => {
+    section.style.display = "none";
+  });
+
+  if(!isOpen){
+    target.style.display = "block";
   }
 }
-
 function openPage(name){
   current = name;
 
