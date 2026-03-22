@@ -526,8 +526,26 @@ function goHome(){
 
 function formatQty(q){
   q = Number(q || 0);
-  return q + "個";
+
+  const abs = Math.abs(q);
+  const box = Math.floor(abs / 30);
+  const piece = abs % 30;
+
+  let boxText = "";
+
+  if(abs === 0){
+    boxText = "0個";
+  }else if(box === 0){
+    boxText = piece + "個";
+  }else if(piece === 0){
+    boxText = box + "箱";
+  }else{
+    boxText = box + "箱" + piece + "個";
+  }
+
+  return q + "個（" + (q < 0 ? "-" : "") + boxText + "）";
 }
+
 async function stockInWarehouse(){
   let stockDate = id("stockInDate").value;
   let pieceQty = Number(id("inQtyPage").value || 0);
