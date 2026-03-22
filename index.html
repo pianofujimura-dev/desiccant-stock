@@ -203,6 +203,59 @@ hr{
     padding:6px;
   }
 }
+.printHeader{
+  display:none;
+}
+
+.printTitle{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:5px;
+}
+
+@media print{
+
+  body{
+    background:white;
+    margin:0;
+  }
+
+  #home{
+    display:none !important;
+  }
+
+  button,
+  #normalIn,
+  #moveBox,
+  #serviceBox,
+  #initialStockBox,
+  #sellBox,
+  #search,
+  .delete{
+    display:none !important;
+  }
+
+  .printHeader{
+    display:block;
+    margin-bottom:10px;
+  }
+
+  .box{
+    box-shadow:none;
+    border:1px solid #999;
+  }
+
+  table{
+    width:100%;
+    border-collapse:collapse;
+  }
+
+  th, td{
+    border:1px solid #999;
+    padding:6px;
+    font-size:14px;
+  }
+}
 </style>
 </head>
 <body>
@@ -226,6 +279,10 @@ hr{
 </div>
 
 <div id="page" style="display:none;">
+  <div id="printHeader" class="printHeader">
+  <div class="printTitle">乾燥剤使用記録</div>
+  <div id="printSub"></div>
+  </div>
   <div class="box">
   <button onclick="goHome()">戻る</button>
   <button onclick="printCurrentPage()">印刷</button>
@@ -991,6 +1048,24 @@ function id(x){
 }
 
 function printCurrentPage(){
+  window.print();
+}
+function printCurrentPage(){
+
+  const today = new Date();
+
+  const d =
+    today.getFullYear() + "-" +
+    String(today.getMonth()+1).padStart(2,"0") + "-" +
+    String(today.getDate()).padStart(2,"0");
+
+  const sub =
+    current + "　残数 " +
+    id("stock").innerText +
+    "　印刷日 " + d;
+
+  id("printSub").innerText = sub;
+
   window.print();
 }
 </script>
