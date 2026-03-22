@@ -410,14 +410,17 @@ hr{
 
       <div id="initialStockSection" class="sectionBody">
         <div class="inlineRow">
-          <span class="label">日付:</span>
-          <input type="date" id="initialDate">
+  <span class="label">日付:</span>
+  <input type="date" id="initialDate">
 
-          <span class="label">個数:</span>
-          <input type="number" id="initialQty" min="1" style="width:100px;">
+  <span class="label">箱:</span>
+  <input type="number" id="initialBox" min="0" style="width:80px;">
 
-          <button onclick="addInitialStock()">追加する</button>
-        </div>
+  <span class="label">個:</span>
+  <input type="number" id="initialQty" min="0" style="width:80px;">
+
+  <button onclick="addInitialStock()">追加する</button>
+</div>
       </div>
     </div>
 
@@ -622,6 +625,7 @@ function clearInputs(){
 
   id("initialDate").value = "";
   id("initialQty").value = "";
+  id("initialBox").value = "";
 
   if(id("moveName").options.length > 0){
     id("moveName").value = "";
@@ -795,20 +799,35 @@ async function addService(){
 }
 
 async function addInitialStock(){
-  let date = id("initialDate").value;
-  let qty = Number(id("initialQty").value);
 
-  if(!date || !qty || qty <= 0){
-    alert("日付と個数を入力してください");
+  let date = id("initialDate").value;
+
+  let box = Number(id("initialBox").value || 0);
+  let piece = Number(id("initialQty").value || 0);
+
+  if(!date){
+    alert("日付を入力してください");
     return;
   }
 
+  if(box <= 0 && piece <= 0){
+    alert("箱数または個数を入力してください");
+    return;
+  }
+
+  let total = box * 30 + piece;
+
+  let label = [];
+
+  if(box > 0) label.push(box + "箱");
+  if(piece > 0) label.push(piece + "個");
+
   records.push({
     tuner: current,
-    date: date + " 初期在庫",
+    date: date + " 初期在庫(" + label.join("+") + ")",
     addr: "",
     name: "",
-    qty: -qty
+    qty: -total
   });
 
   await save();
