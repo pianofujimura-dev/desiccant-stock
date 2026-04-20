@@ -924,10 +924,42 @@ function update(){
   !(r.date || "").includes("初期在庫");
 
 const qtyValue = Number(r.qty || 0);
-const isReceive = (r.date || "").includes("倉庫(");
-const qtyText = isReceive
-  ? "+" + formatQty(Math.abs(qtyValue))
-  : formatQty(qtyValue);
+let qtyText;
+
+if(current === "木津倉庫"){
+
+  // 入庫 → プラス
+  if((r.date || "").includes("入庫")){
+    qtyText = "+" + formatQty(Math.abs(qtyValue));
+  }
+
+  // 持出 → マイナス
+  else if((r.date || "").includes("持出")){
+    qtyText = "-" + formatQty(Math.abs(qtyValue));
+  }
+
+  // リメイク・中古販売 → マイナス
+  else if(
+    (r.name || "").includes("リメイク") ||
+    (r.name || "").includes("中古販売")
+  ){
+    qtyText = "-" + formatQty(Math.abs(qtyValue));
+  }
+
+  // その他（保険）
+  else{
+    qtyText = formatQty(qtyValue);
+  }
+
+}else{
+
+  // 調律師ページ用
+  const isReceive = (r.date || "").includes("倉庫(");
+
+  qtyText = isReceive
+    ? "+" + formatQty(Math.abs(qtyValue))
+    : formatQty(qtyValue);
+}
 
 tr.innerHTML = `
   <td>${r.date || ""}</td>
