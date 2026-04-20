@@ -350,6 +350,9 @@ hr{
 
       <div id="moveSection" class="sectionBody">
   <div class="inlineRow">
+　　<span class="label">日付:</span>
+  　<input type="date" id="moveDate">
+
     <span class="label">調律師:</span>
     <select id="moveName"></select>
 
@@ -376,32 +379,38 @@ hr{
 </div>
       </div>
     </div>
+<div id="serviceBox" style="display:none;">
+  <hr>
+  <div class="guideTitle serviceColor" onclick="toggleSection('serviceSection')">
+    リメイクサービス時
+  </div>
 
-    <div id="serviceBox" style="display:none;">
-      <hr>
-      <div class="guideTitle serviceColor" onclick="toggleSection('serviceSection')">
-        リメイクサービス時
-      </div>
+  <div id="serviceSection" class="sectionBody">
+    <div class="inlineRow">
+      <span class="label">区分:</span>
+      <select id="serviceType">
+        <option value="リメイク">リメイク</option>
+        <option value="中古販売">中古販売</option>
+      </select>
 
-      <div id="serviceSection" class="sectionBody">
-        <div class="inlineRow">
-          <span class="label">日付:</span>
-          <input type="date" id="serviceDate">
+      <span class="label">日付:</span>
+      <input type="date" id="serviceDate">
 
-          <span class="label">住所:</span>
-          <input id="serviceAddr">
+      <span class="label">住所:</span>
+      <input id="serviceAddr">
 
-          <span class="label">名前:</span>
-          <input id="serviceName">
+      <span class="label">名前:</span>
+      <input id="serviceName">
 
-          <span class="label">個数:</span>
-          <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
+      <span class="label">個数:</span>
+      <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
 
-          <button onclick="addService()">リメイク</button>
-        </div>
-      </div>
+      <button onclick="addService()">登録</button>
     </div>
+  </div>
+</div>
 
+<div id="initialStockBox" style="display:none;">
     <div id="initialStockBox" style="display:none;">
       <hr>
       <div class="guideTitle initialColor" onclick="toggleSection('initialStockSection')">
@@ -617,6 +626,8 @@ function clearInputs(){
   id("boxCount").value = "";
   id("moveBoxCount").value = "1";
   id("movePieceQty").value = "";
+  id("moveDate").value = "";
+  id("serviceType").value = "リメイク";
 
   id("serviceDate").value = "";
   id("serviceAddr").value = "";
@@ -717,7 +728,13 @@ async function stockInWarehouse(){
 }
 
 async function moveOne(){
+  let date = id("moveDate").value;
   let to = id("moveName").value;
+  
+  if(!date){
+    alert("日付を入力してください");
+    return;
+  }
 
   if(!to){
     alert("渡す相手を選んでください");
@@ -754,7 +771,7 @@ async function moveOne(){
 
   records.push({
     tuner: "木津倉庫",
-    date: "持出(" + label.join("+") + ")",
+    date: date +  "持出(" + label.join("+") + ")",
     addr: "",
     name: to,
     qty: qty,
@@ -763,7 +780,7 @@ async function moveOne(){
 
   records.push({
     tuner: to,
-    date: "倉庫(" + label.join("+") + ")",
+    date: date +  "倉庫(" + label.join("+") + ")",
     addr: "",
     name: "",
     qty: -qty,
@@ -775,13 +792,14 @@ async function moveOne(){
   update();
 }
 async function addService(){
+  let type = id("serviceType").value;
   let date = id("serviceDate").value;
   let addr = id("serviceAddr").value;
   let name = id("serviceName").value;
   let qty = Number(id("serviceQty").value);
 
-  if(!date || !addr || !name || !qty){
-    alert("日付・住所・名前・個数を入力してください");
+  if(!type || !date || !addr || !name || !qty){
+    alert("区分・日付・住所・名前・個数を入力してください");
     return;
   }
 
@@ -789,7 +807,7 @@ async function addService(){
     tuner: "木津倉庫",
     date: date,
     addr: addr,
-    name: "リメイク：" + name,
+    name: type + "：" + name,
     qty: qty
   });
 
@@ -888,7 +906,10 @@ function update(){
 
     if((r.date || "").includes("入庫")) color = "#e3f2fd";
     else if((r.date || "").includes("持出")) color = "#ffe0b2";
-    else if((r.name || "").includes("リメイク")) color = "#fff3cd";
+    else if(
+      (r.name || "").includes("リメイク") ||
+      (r.name || "").includes("中古販売")
+    ) color = "#fff3cd";
     else if((r.date || "").includes("初期在庫")) color = "#e8f5e9";
     else if(Number(r.qty || 0) > 0) color = "#ffcdd2";
     else color = "#e8f5e9";
@@ -900,7 +921,8 @@ function update(){
   !(r.date || "").includes("入庫") &&
   !(r.date || "").includes("持出") &&
   !(r.date || "").includes("初期在庫") &&
-  !(r.name || "").includes("リメイク");
+  !(r.name || "").includes("リメイク") &&
+  !(r.name || "").includes("中古販売");
 
 tr.innerHTML = `
   <td>${r.date || ""}</td>
