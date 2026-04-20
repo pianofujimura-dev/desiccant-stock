@@ -405,13 +405,14 @@ hr{
       <span class="label">個数:</span>
       <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
 
-      <button onclick="addService()">登録</button>
+      <button id="serviceAddBtn" onclick="addService()">登録</button>
+      <button id="serviceUpdateBtn" onclick="updateRecord()" style="display:none;">更新</button>
+      <button id="serviceCancelEditBtn" onclick="cancelEdit()" style="display:none; background:#777;">キャンセル</button>
     </div>
   </div>
 </div>
 
 <div id="initialStockBox" style="display:none;">
-    <div id="initialStockBox" style="display:none;">
       <hr>
       <div class="guideTitle initialColor" onclick="toggleSection('initialStockSection')">
         今持っている乾燥剤を追加
@@ -771,7 +772,7 @@ async function moveOne(){
 
   records.push({
     tuner: "木津倉庫",
-    date: date +  "持出(" + label.join("+") + ")",
+    date: date + " 持出(" + label.join("+") + ")",
     addr: "",
     name: to,
     qty: qty,
@@ -780,7 +781,7 @@ async function moveOne(){
 
   records.push({
     tuner: to,
-    date: date +  "倉庫(" + label.join("+") + ")",
+    date: date + " 倉庫(" + label.join("+") + ")",
     addr: "",
     name: "",
     qty: -qty,
@@ -917,18 +918,22 @@ function update(){
     let tr = document.createElement("tr");
     tr.style.background = color;
 
-    const canEdit =
+   const canEdit =
   !(r.date || "").includes("入庫") &&
   !(r.date || "").includes("持出") &&
-  !(r.date || "").includes("初期在庫") &&
-  !(r.name || "").includes("リメイク") &&
-  !(r.name || "").includes("中古販売");
+  !(r.date || "").includes("初期在庫");
+
+const qtyValue = Number(r.qty || 0);
+const isReceive = (r.date || "").includes("倉庫(");
+const qtyText = isReceive
+  ? "+" + formatQty(Math.abs(qtyValue))
+  : formatQty(qtyValue);
 
 tr.innerHTML = `
   <td>${r.date || ""}</td>
   <td>${r.addr || ""}</td>
   <td>${r.name || ""}</td>
-  <td>${formatQty(Number(r.qty || 0))}</td>
+  <td>${qtyText}</td>
   <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
   <td>
     ${
@@ -938,7 +943,6 @@ tr.innerHTML = `
     }
   </td>
 `;
-
     tbody.appendChild(tr);
   });
 
@@ -1151,12 +1155,34 @@ function editRecord(index){
 
   editingIndex = index;
 
-  id("date").value = r.date || "";
-  id("addr").value = r.addr || "";
-  id("name").value = r.name || "";
-  id("qty").value = Number(r.qty || 0);
+  if((r.name || "").includes("リメイク") || (r.name || "").includes("中古販売")){
+    const fullName = r.name || "";
+    let type = "リメイク";
+    let customerName = fullName;
 
-  id("sellSection").style.display = "block";
+    if(fullName.includes("中古販売：")){
+      type = "中古販売";
+      customerName = fullName.replace("中古販売：", "");
+    }else if(fullName.includes("リメイク：")){
+      type = "リメイク";
+      customerName = fullName.replace("リメイク：", "");
+    }
+
+    id("serviceType").value = type;
+    id("serviceDate").value = r.date || "";
+    id("serviceAddr").value = r.addr || "";
+    id("serviceName").value = customerName;
+    id("serviceQty").value = Number(r.qty || 0);
+
+    id("serviceSection").style.display = "block";
+  }else{
+    id("date").value = r.date || "";
+    id("addr").value = r.addr || "";
+    id("name").value = r.name || "";
+    id("qty").value = Number(r.qty || 0);
+
+    id("sellSection").style.display = "block";
+  }
 
   id("addBtn").style.display = "none";
   id("updateBtn").style.display = "inline-block";
@@ -1169,31 +1195,53 @@ async function updateRecord(){
     return;
   }
 
-  let date = id("date").value.trim();
-  let addr = id("addr").value.trim();
-  let name = id("name").value.trim();
-  let qtyText = id("qty").value.trim();
+  const target = records[editingIndex];
 
-  let qty = qtyText === "" ? 0 : Number(qtyText);
+  if((target.name || "").includes("リメイク") || (target.name || "").includes("中古販売")){
+    let type = id("serviceType").value;
+    let date = id("serviceDate").value.trim();
+    let addr = id("serviceAddr").value.trim();
+    let name = id("serviceName").value.trim();
+    let qty = Number(id("serviceQty").value);
 
-  if(isNaN(qty)){
-    alert("個数は数字で入力してください");
-    return;
+    if(!type || !date || !addr || !name || !qty){
+      alert("区分・日付・住所・名前・個数を入力してください");
+      return;
+    }
+
+    records[editingIndex] = {
+      ...records[editingIndex],
+      date: date,
+      addr: addr,
+      name: type + "：" + name,
+      qty: qty
+    };
+  }else{
+    let date = id("date").value.trim();
+    let addr = id("addr").value.trim();
+    let name = id("name").value.trim();
+    let qtyText = id("qty").value.trim();
+
+    let qty = qtyText === "" ? 0 : Number(qtyText);
+
+    if(isNaN(qty)){
+      alert("個数は数字で入力してください");
+      return;
+    }
+
+    records[editingIndex] = {
+      ...records[editingIndex],
+      date: date,
+      addr: addr,
+      name: name,
+      qty: qty
+    };
   }
-
-  records[editingIndex] = {
-    ...records[editingIndex],
-    date: date,
-    addr: addr,
-    name: name,
-    qty: qty
-  };
 
   await save();
   cancelEdit();
   update();
 }
-
 function cancelEdit(){
   editingIndex = -1;
 
@@ -1202,11 +1250,16 @@ function cancelEdit(){
   id("name").value = "";
   id("qty").value = "";
 
+  id("serviceType").value = "リメイク";
+  id("serviceDate").value = "";
+  id("serviceAddr").value = "";
+  id("serviceName").value = "";
+  id("serviceQty").value = "2";
+
   id("addBtn").style.display = "inline-block";
   id("updateBtn").style.display = "none";
   id("cancelEditBtn").style.display = "none";
-}
-</script>
+}</script>
 
 </body>
 </html>
