@@ -942,23 +942,26 @@ function update(){
 
     if(current === "木津倉庫"){
       if((r.date || "").includes("入庫")){
-        qtyText = "+" + formatQty(Math.abs(qtyValue));
+        qtyText = "+" + Math.abs(qtyValue);
       }else if((r.date || "").includes("持出")){
-        qtyText = "-" + formatQty(Math.abs(qtyValue));
+        qtyText = "-" + Math.abs(qtyValue);
       }else if(
         (r.name || "").includes("リメイク") ||
         (r.name || "").includes("中古販売")
       ){
-        qtyText = "-" + formatQty(Math.abs(qtyValue));
+        qtyText = "-" + Math.abs(qtyValue);
       }else{
-        qtyText = formatQty(qtyValue);
+        qtyText = (qtyValue > 0 ? "-" : "+") + Math.abs(qtyValue);
       }
-    }else{
-      const isReceive = (r.date || "").includes("倉庫(");
-      qtyText = isReceive
-        ? "+" + formatQty(Math.abs(qtyValue))
-        : formatQty(qtyValue);
-    }
+      }else{
+        const isReceive = (r.date || "").includes("倉庫(");
+
+        if(isReceive){
+           qtyText = "+" + Math.abs(qtyValue);
+        }else{
+           qtyText = "-" + Math.abs(qtyValue);
+        }
+       }
 
     tr.innerHTML = `
       <td>${r.date || ""}</td>
