@@ -182,7 +182,9 @@ hr{
   #initialStockBox,
   #sellBox,
   .delete,
-  #search{
+  #search,
+  #homeSearch,
+  #tunerStockBox{
     display:none !important;
   }
 
@@ -271,7 +273,6 @@ hr{
     font-size:14px;
   }
 }
-
 </style>
 </head>
 <body>
@@ -279,16 +280,22 @@ hr{
 <h1>乾燥剤管理システム</h1>
 
 <div id="home">
- <div class="box" id="warehouseBox">
-  木津倉庫 残数
-  <span class="stock" id="totalStock">0個</span>
-  <span id="warehouseButton"></span>
-  <button class="modeBtn" onclick="exportCSV()">CSV出力</button>
-</div>
+  <div class="box" id="warehouseBox">
+    木津倉庫 残数
+    <span class="stock" id="totalStock">0個</span>
+    <span id="warehouseButton"></span>
+    <button class="modeBtn" onclick="exportCSV()">CSV出力</button>
+  </div>
 
   <div class="box">
     <div id="tunerButtons"></div>
+
     <div class="box">
+      <span class="label">検索:</span>
+      <input id="homeSearch" onkeyup="filterHomeStock()" placeholder="調律師名で検索">
+    </div>
+
+    <div class="box" id="tunerStockBox" style="display:none;">
       <div id="tunerStockList"></div>
     </div>
   </div>
@@ -296,16 +303,17 @@ hr{
 
 <div id="page" style="display:none;">
   <div id="printHeader" class="printHeader">
-  <div class="printTitle">乾燥剤使用記録</div>
-  <div id="printSub"></div>
+    <div class="printTitle">乾燥剤使用記録</div>
+    <div id="printSub"></div>
   </div>
+
   <div class="box">
-  <button onclick="goHome()">戻る</button>
-  <button onclick="printCurrentPage()">印刷</button>
-  <h2 id="title"></h2>
-  残数
-  <span class="stock" id="stock"></span>
-</div>
+    <button onclick="goHome()">戻る</button>
+    <button onclick="printCurrentPage()">印刷</button>
+    <h2 id="title"></h2>
+    残数
+    <span class="stock" id="stock"></span>
+  </div>
 
   <div class="box" id="inputAreaBox">
 
@@ -315,31 +323,31 @@ hr{
       </div>
 
       <div id="inSection" class="sectionBody">
-  <div class="inlineRow">
-    <span class="label">入庫日:</span>
-    <input type="date" id="stockInDate">
+        <div class="inlineRow">
+          <span class="label">入庫日:</span>
+          <input type="date" id="stockInDate">
 
-    <span class="label">箱:</span>
-    <select id="boxCount">
-      <option value="">--箱数--</option>
-      <option value="1">1箱</option>
-      <option value="2">2箱</option>
-      <option value="3">3箱</option>
-      <option value="4">4箱</option>
-      <option value="5">5箱</option>
-      <option value="6">6箱</option>
-      <option value="7">7箱</option>
-      <option value="8">8箱</option>
-      <option value="9">9箱</option>
-      <option value="10">10箱</option>
-    </select>
+          <span class="label">箱:</span>
+          <select id="boxCount">
+            <option value="">--選択--</option>
+            <option value="1">1箱</option>
+            <option value="2">2箱</option>
+            <option value="3">3箱</option>
+            <option value="4">4箱</option>
+            <option value="5">5箱</option>
+            <option value="6">6箱</option>
+            <option value="7">7箱</option>
+            <option value="8">8箱</option>
+            <option value="9">9箱</option>
+            <option value="10">10箱</option>
+          </select>
 
-    <span class="label">個数:</span>
-    <input type="number" id="inQtyPage" min="1" style="width:90px;">
+          <span class="label">個数:</span>
+          <input type="number" id="inQtyPage" min="1" style="width:90px;">
 
-    <button onclick="stockInWarehouse()">入庫する</button>
-  </div>
-</div>
+          <button onclick="stockInWarehouse()">入庫する</button>
+        </div>
+      </div>
     </div>
 
     <div id="moveBox" style="display:none;">
@@ -349,70 +357,70 @@ hr{
       </div>
 
       <div id="moveSection" class="sectionBody">
-  <div class="inlineRow">
-　　<span class="label">日付:</span>
-  　<input type="date" id="moveDate">
+        <div class="inlineRow">
+          <span class="label">日付:</span>
+          <input type="date" id="moveDate">
 
-    <span class="label">調律師:</span>
-    <select id="moveName"></select>
+          <span class="label">調律師:</span>
+          <select id="moveName"></select>
 
-    <span class="label">箱数:</span>
-    <select id="moveBoxCount">
-      <option value="0">0箱</option>
-      <option value="1">1箱</option>
-      <option value="2">2箱</option>
-      <option value="3">3箱</option>
-      <option value="4">4箱</option>
-      <option value="5">5箱</option>
-      <option value="6">6箱</option>
-      <option value="7">7箱</option>
-      <option value="8">8箱</option>
-      <option value="9">9箱</option>
-      <option value="10">10箱</option>
-    </select>
+          <span class="label">箱数:</span>
+          <select id="moveBoxCount">
+            <option value="">--選択--</option>
+            <option value="1">1箱</option>
+            <option value="2">2箱</option>
+            <option value="3">3箱</option>
+            <option value="4">4箱</option>
+            <option value="5">5箱</option>
+            <option value="6">6箱</option>
+            <option value="7">7箱</option>
+            <option value="8">8箱</option>
+            <option value="9">9箱</option>
+            <option value="10">10箱</option>
+          </select>
 
-    <span class="label">個数:</span>
-    <input type="number" id="movePieceQty" min="0" style="width:90px;">
+          <span class="label">個数:</span>
+          <input type="number" id="movePieceQty" min="0" style="width:90px;">
 
-    <button onclick="moveOne()">渡す</button>
-  </div>
-</div>
+          <button onclick="moveOne()">渡す</button>
+        </div>
       </div>
     </div>
-<div id="serviceBox" style="display:none;">
-  <hr>
-  <div class="guideTitle serviceColor" onclick="toggleSection('serviceSection')">
-    リメイクサービス時
-  </div>
 
-  <div id="serviceSection" class="sectionBody">
-    <div class="inlineRow">
-      <span class="label">区分:</span>
-      <select id="serviceType">
-        <option value="リメイク">リメイク</option>
-        <option value="中古販売">中古販売</option>
-      </select>
+    <div id="serviceBox" style="display:none;">
+      <hr>
+      <div class="guideTitle serviceColor" onclick="toggleSection('serviceSection')">
+        リメイクサービス時
+      </div>
 
-      <span class="label">日付:</span>
-      <input type="date" id="serviceDate">
+      <div id="serviceSection" class="sectionBody">
+        <div class="inlineRow">
+          <span class="label">区分:</span>
+          <select id="serviceType">
+            <option value="リメイク">リメイク</option>
+            <option value="中古販売">中古販売</option>
+          </select>
 
-      <span class="label">住所:</span>
-      <input id="serviceAddr">
+          <span class="label">日付:</span>
+          <input type="date" id="serviceDate">
 
-      <span class="label">名前:</span>
-      <input id="serviceName">
+          <span class="label">住所:</span>
+          <input id="serviceAddr">
 
-      <span class="label">個数:</span>
-      <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
+          <span class="label">名前:</span>
+          <input id="serviceName">
 
-      <button id="serviceAddBtn" onclick="addService()">登録</button>
-      <button id="serviceUpdateBtn" onclick="updateRecord()" style="display:none;">更新</button>
-      <button id="serviceCancelEditBtn" onclick="cancelEdit()" style="display:none; background:#777;">キャンセル</button>
+          <span class="label">個数:</span>
+          <input type="number" id="serviceQty" value="2" min="1" style="width:90px;">
+
+          <button id="serviceAddBtn" onclick="addService()">登録</button>
+          <button id="serviceUpdateBtn" onclick="updateRecord()" style="display:none;">更新</button>
+          <button id="serviceCancelEditBtn" onclick="cancelEdit()" style="display:none; background:#777;">キャンセル</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<div id="initialStockBox" style="display:none;">
+    <div id="initialStockBox" style="display:none;">
       <hr>
       <div class="guideTitle initialColor" onclick="toggleSection('initialStockSection')">
         今持っている乾燥剤を追加
@@ -420,17 +428,17 @@ hr{
 
       <div id="initialStockSection" class="sectionBody">
         <div class="inlineRow">
-  <span class="label">日付:</span>
-  <input type="date" id="initialDate">
+          <span class="label">日付:</span>
+          <input type="date" id="initialDate">
 
-  <span class="label">箱:</span>
-  <input type="number" id="initialBox" min="0" style="width:80px;">
+          <span class="label">箱:</span>
+          <input type="number" id="initialBox" min="0" style="width:80px;">
 
-  <span class="label">個:</span>
-  <input type="number" id="initialQty" min="0" style="width:80px;">
+          <span class="label">個:</span>
+          <input type="number" id="initialQty" min="0" style="width:80px;">
 
-  <button onclick="addInitialStock()">追加する</button>
-</div>
+          <button onclick="addInitialStock()">追加する</button>
+        </div>
       </div>
     </div>
 
@@ -463,10 +471,10 @@ hr{
 
   </div>
 
- <div class="box" id="searchBox">
-  <span class="label">検索:</span>
-  <input id="search" onkeyup="search()" placeholder="日付・住所・名前で検索">
-</div>
+  <div class="box" id="searchBox">
+    <span class="label">検索:</span>
+    <input id="search" onkeyup="search()" placeholder="日付・住所・名前で検索">
+  </div>
 
   <div class="box">
     <table id="table">
@@ -492,7 +500,6 @@ const API_URL = "https://script.google.com/macros/s/AKfycbzFGVJhVdH3EW1XI9I1nCgm
 let records = [];
 let current = "";
 let editingIndex = -1;
-let displayMode = "both";
 
 async function loadRecords(){
   try{
@@ -503,7 +510,6 @@ async function loadRecords(){
     }
 
     const data = await res.json();
-    console.log("load data:", data);
 
     if(!Array.isArray(data)){
       throw new Error("APIが配列を返していません: " + JSON.stringify(data));
@@ -625,11 +631,11 @@ function clearInputs(){
   id("search").value = "";
   id("stockInDate").value = "";
   id("boxCount").value = "";
-  id("moveBoxCount").value = "1";
+  id("moveBoxCount").value = "";
   id("movePieceQty").value = "";
   id("moveDate").value = "";
-  id("serviceType").value = "リメイク";
 
+  id("serviceType").value = "リメイク";
   id("serviceDate").value = "";
   id("serviceAddr").value = "";
   id("serviceName").value = "";
@@ -654,16 +660,25 @@ function clearInputs(){
   if(id("addBtn")) id("addBtn").style.display = "inline-block";
   if(id("updateBtn")) id("updateBtn").style.display = "none";
   if(id("cancelEditBtn")) id("cancelEditBtn").style.display = "none";
-}
 
+  if(id("serviceAddBtn")) id("serviceAddBtn").style.display = "inline-block";
+  if(id("serviceUpdateBtn")) id("serviceUpdateBtn").style.display = "none";
+  if(id("serviceCancelEditBtn")) id("serviceCancelEditBtn").style.display = "none";
+
+  if(id("homeSearch")) id("homeSearch").value = "";
+  if(id("tunerStockBox")) id("tunerStockBox").style.display = "none";
+}
 
 function goHome(){
   id("home").style.display = "block";
   id("page").style.display = "none";
+
+  if(id("homeSearch")) id("homeSearch").value = "";
+  if(id("tunerStockBox")) id("tunerStockBox").style.display = "none";
+
   current = "";
   updateTotal();
 }
-
 
 function formatQty(q){
   q = Number(q || 0);
@@ -731,7 +746,7 @@ async function stockInWarehouse(){
 async function moveOne(){
   let date = id("moveDate").value;
   let to = id("moveName").value;
-  
+
   if(!date){
     alert("日付を入力してください");
     return;
@@ -792,6 +807,7 @@ async function moveOne(){
   clearInputs();
   update();
 }
+
 async function addService(){
   let type = id("serviceType").value;
   let date = id("serviceDate").value;
@@ -818,9 +834,7 @@ async function addService(){
 }
 
 async function addInitialStock(){
-
   let date = id("initialDate").value;
-
   let box = Number(id("initialBox").value || 0);
   let piece = Number(id("initialQty").value || 0);
 
@@ -835,7 +849,6 @@ async function addInitialStock(){
   }
 
   let total = box * 30 + piece;
-
   let label = [];
 
   if(box > 0) label.push(box + "箱");
@@ -879,6 +892,7 @@ async function add(){
   clearInputs();
   update();
 }
+
 function update(){
   let tbody = document.querySelector("#table tbody");
   tbody.innerHTML = "";
@@ -918,71 +932,58 @@ function update(){
     let tr = document.createElement("tr");
     tr.style.background = color;
 
-   const canEdit =
-  !(r.date || "").includes("入庫") &&
-  !(r.date || "").includes("持出") &&
-  !(r.date || "").includes("初期在庫");
+    const canEdit =
+      !(r.date || "").includes("入庫") &&
+      !(r.date || "").includes("持出") &&
+      !(r.date || "").includes("初期在庫");
 
-const qtyValue = Number(r.qty || 0);
-let qtyText;
+    const qtyValue = Number(r.qty || 0);
+    let qtyText;
 
-if(current === "木津倉庫"){
-
-  // 入庫 → プラス
-  if((r.date || "").includes("入庫")){
-    qtyText = "+" + formatQty(Math.abs(qtyValue));
-  }
-
-  // 持出 → マイナス
-  else if((r.date || "").includes("持出")){
-    qtyText = "-" + formatQty(Math.abs(qtyValue));
-  }
-
-  // リメイク・中古販売 → マイナス
-  else if(
-    (r.name || "").includes("リメイク") ||
-    (r.name || "").includes("中古販売")
-  ){
-    qtyText = "-" + formatQty(Math.abs(qtyValue));
-  }
-
-  // その他（保険）
-  else{
-    qtyText = formatQty(qtyValue);
-  }
-
-}else{
-
-  // 調律師ページ用
-  const isReceive = (r.date || "").includes("倉庫(");
-
-  qtyText = isReceive
-    ? "+" + formatQty(Math.abs(qtyValue))
-    : formatQty(qtyValue);
-}
-
-tr.innerHTML = `
-  <td>${r.date || ""}</td>
-  <td>${r.addr || ""}</td>
-  <td>${r.name || ""}</td>
-  <td>${qtyText}</td>
-  <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
-  <td>
-    ${
-      canEdit
-        ? `<button onclick="editRecord(${r.originalIndex})" style="background:#ff9800;">編集</button>`
-        : `-`
+    if(current === "木津倉庫"){
+      if((r.date || "").includes("入庫")){
+        qtyText = "+" + formatQty(Math.abs(qtyValue));
+      }else if((r.date || "").includes("持出")){
+        qtyText = "-" + formatQty(Math.abs(qtyValue));
+      }else if(
+        (r.name || "").includes("リメイク") ||
+        (r.name || "").includes("中古販売")
+      ){
+        qtyText = "-" + formatQty(Math.abs(qtyValue));
+      }else{
+        qtyText = formatQty(qtyValue);
+      }
+    }else{
+      const isReceive = (r.date || "").includes("倉庫(");
+      qtyText = isReceive
+        ? "+" + formatQty(Math.abs(qtyValue))
+        : formatQty(qtyValue);
     }
-  </td>
-`;
+
+    tr.innerHTML = `
+      <td>${r.date || ""}</td>
+      <td>${r.addr || ""}</td>
+      <td>${r.name || ""}</td>
+      <td>${qtyText}</td>
+      <td><button class="delete" onclick="del(${r.originalIndex})">削除</button></td>
+      <td>
+        ${
+          canEdit
+            ? `<button onclick="editRecord(${r.originalIndex})" style="background:#ff9800;">編集</button>`
+            : `-`
+        }
+      </td>
+    `;
+
     tbody.appendChild(tr);
   });
 
   id("stock").innerText = formatQty(stock);
 }
 
-function updateTunerStock(){
+function updateTunerStock(keyword = ""){
   let html = "";
+  const searchWord = (keyword || "").trim().toLowerCase();
 
   tuners.forEach(name => {
     let total = 0;
@@ -992,6 +993,10 @@ function updateTunerStock(){
         total -= Number(r.qty || 0);
       }
     });
+
+    if(searchWord && !name.toLowerCase().includes(searchWord)){
+      return;
+    }
 
     html += `
       <div style="
@@ -1008,6 +1013,17 @@ function updateTunerStock(){
   });
 
   id("tunerStockList").innerHTML = html;
+
+  if(searchWord && html !== ""){
+    id("tunerStockBox").style.display = "block";
+  }else{
+    id("tunerStockBox").style.display = "none";
+  }
+}
+
+function filterHomeStock(){
+  const keyword = id("homeSearch").value;
+  updateTunerStock(keyword);
 }
 
 function updateTotal(){
@@ -1056,8 +1072,6 @@ async function del(i){
 
 async function save(){
   try{
-    console.log("送信前 records:", records);
-
     const res = await fetch(API_URL, {
       method: "POST",
       headers: {
@@ -1067,8 +1081,6 @@ async function save(){
     });
 
     const text = await res.text();
-    console.log("POST response status:", res.status);
-    console.log("POST response text:", text);
 
     if(!res.ok){
       throw new Error("保存失敗: " + res.status + " / " + text);
@@ -1163,7 +1175,6 @@ function id(x){
 }
 
 function printCurrentPage(){
-
   const today = new Date();
 
   const d =
@@ -1207,6 +1218,10 @@ function editRecord(index){
     id("serviceQty").value = Number(r.qty || 0);
 
     id("serviceSection").style.display = "block";
+
+    id("serviceAddBtn").style.display = "none";
+    id("serviceUpdateBtn").style.display = "inline-block";
+    id("serviceCancelEditBtn").style.display = "inline-block";
   }else{
     id("date").value = r.date || "";
     id("addr").value = r.addr || "";
@@ -1214,11 +1229,11 @@ function editRecord(index){
     id("qty").value = Number(r.qty || 0);
 
     id("sellSection").style.display = "block";
-  }
 
-  id("addBtn").style.display = "none";
-  id("updateBtn").style.display = "inline-block";
-  id("cancelEditBtn").style.display = "inline-block";
+    id("addBtn").style.display = "none";
+    id("updateBtn").style.display = "inline-block";
+    id("cancelEditBtn").style.display = "inline-block";
+  }
 }
 
 async function updateRecord(){
@@ -1274,6 +1289,7 @@ async function updateRecord(){
   cancelEdit();
   update();
 }
+
 function cancelEdit(){
   editingIndex = -1;
 
@@ -1288,10 +1304,18 @@ function cancelEdit(){
   id("serviceName").value = "";
   id("serviceQty").value = "2";
 
+  id("sellSection").style.display = "none";
+  id("serviceSection").style.display = "none";
+
   id("addBtn").style.display = "inline-block";
   id("updateBtn").style.display = "none";
   id("cancelEditBtn").style.display = "none";
-}</script>
+
+  id("serviceAddBtn").style.display = "inline-block";
+  id("serviceUpdateBtn").style.display = "none";
+  id("serviceCancelEditBtn").style.display = "none";
+}
+</script>
 
 </body>
 </html>
